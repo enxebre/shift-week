@@ -1,0 +1,1501 @@
+Disclaimer
+The content set forth herein is Red Hat confidential information and does not constitute in any way a binding or legal agreement or impose any legal obligation or duty on Red Hat. This information is provided for discussion purposes only and is subject to change for any reason without notice.  
+
+MCE 2.7 with hypershift operator (HCP) for 4.17 has GA'd 
+What’s New: Hosted control planes release notes 
+Support Matrix: Requirements for hosted control planes - Preparing to deploy hosted control planes | Hosted control planes | OpenShift Container Platform 4.17 
+
+As of Feb 1st, a HCP PM transition from Adel Zaalouk to Ramon Acedo Rodriguez will take place. 
+
+Can’t Find What You are Looking For?
+Have an Unaddressed Use-case? Create an RFE!
+Provide Feedback about a Use-case or Just Speak your Mind 🙂
+Important Acronyms
+General Information & Overview
+What is Hosted Control Planes (HyperShift)?
+What are the main personas for Hosted Control Planes (HyperShift)?
+Why HyperShift?
+What are example use-cases for Hosted Control Planes?
+What is the difference between Virtualized Control Planes and Hosted Control Planes?
+How can I get started with Hosted Control Planes?
+What is the difference between standalone and Hosted (HCP) OpenShift?
+Consumption Flavors (Self-managed & Managed)
+What is the difference between Self-managed & Managed Hosted Control Planes?
+Where can I find more about managed hosted control planes (cloud services)?
+Product Information
+Where is the HCP lifecycle documented?
+Are Hosted Control Planes (HCP) GA and Supported and - if so - in which variants (managed/self-hosted)?
+Is it a technical requirement to use Hosted Control Planes (HCP) with Advanced Cluster Management (ACM)
+What is the current plan for delivering managed hosted control planes (cloud services)?
+What does it meant that both the management cluster and workers must run on the same infrastructure?
+Which Platforms does Managed Hosted Control Planes support?
+Which Regions are supported with ROSA HCP?
+When will ROSA HCP be in parity with ROSA-classic compliance?
+What is the current plan for delivering self-managed Hosted Control Planes?
+Which Infrastructure Providers will Self-managed Hosted Control Planes (HyperShift) support?
+Will Self-managed Hosted Control Planes be available on Bare Metal?
+How will Self-managed Hosted Control Planes work with the KubeVirt Provider?
+Will VMware as an infra target be supported as a provider today?
+Does Self-managed Hosted Control Planes work with OSP?
+Can workers of the same cluster be deployed cloud and partially on premise?
+Will we support HCP control planes on premise and workers in the cloud?
+IS None Provider supported with Hosted Control Planes?
+What are possible HCP Architecture Possibilities?
+What are the different Hosted Control Planes Topologies with ACM (Hub/Management/Parent/Child/…)?
+Can I deploy MCE as a Management Cluster deployed by ACM?
+Can compact (three-node) OpenShift clusters act as a hub cluster for self-managed Hosted Control Planes?
+What is the Max number of worker nodes supported by a HCP?
+Can Hosted Control Planes run on Compact OpenShift management clusters?
+For Operator Lifecycle Management in HyperShift, is it advisable to set it as management or guest?
+Sales Related
+Is a separate subscription needed for Self-managed Hosted Control Planes?
+What is the right subscription setup for Hosted Control Planes with the OpenShift Virtualization Provider?
+Before the new OpenShift Virtualization Engine and the new Baremetal SKUs
+After the new OpenShift Virtualization Engine (OVE) and the new Baremetal SKUs (Effective January 2025)
+What subscription type is required for OCP-V and ODF?
+Can the customer use only master and infra nodes for the management cluster that hosts control plane pods, or are worker nodes needed with associated subscriptions?
+Can Hosted Control Planes be used for OKE Clusters?
+Is HCP included with OKE?
+Architecture & Tech-related
+Observability
+What metrics will the Cluster Instance Admin vs. Cluster Service Consumer have access to?
+Disconnected
+High Availability & Disaster Recovery
+How do you HA the Management Cluster (Hosting Service Cluster) in HyperShift?
+What happens when the Hosting Service Cluster (aka Management Cluster) goes down?
+Is there any suggested architecture for deploy HCP in HA Mode?
+Can I migrate a control-plane of a Hosted Cluster from one Management cluster to another in DR scenarios?
+What is the allowed latency for connections within a distributed Hosted Control Plane (HCP) setup across 3 data centers or Availability Zones?
+Networking
+What does networking look like between the management cluster and the hosted clusters?
+Which firewall ports are needed for a hosted control plane?
+In the context of Hosted Control Planes and Konnectivity, if Konnectivity establishes a bidirectional tunnel, why is a Konnectivity agent required on the management cluster?
+Is the SDN shared between the management cluster and the hosted clusters (where workloads run)?
+Does Hosted Control Planes support Third Party CNIs?
+Does Hypershift support both ipv4 and ipv6?
+What are the guidelines for managing latency and configuration in a distributed network setup with control plane pods and worker nodes in separate locations?
+Is there an issue with overlapping cluster-internal networks between HCP clusters, similar to the issues with ACM?
+What is the difference between Kube-proxy and Konnectivity in Hosted Clusters (Managed Clusters when MCE/ACM are in the picture as well)?
+Where do Ingress pods run with HCP?
+What is the correct way to use NodePort in a HyperShift Control Plane (HCP) setup with a management OCP cluster on bare metal and an external third-party load balancer?
+Konnectivity FAQ
+Upstream allows grpc or http-connect mode for the konnectivity protocol, why does HyperShift use http-connect?
+Upstream allows connecting to the konnectivity server via unix domain socket or via tcp port. Why does HyperShift use tcp port?
+Why does Konnectivity server run as a sidecar of the Kubernetes API server and not in its own deployment?
+How is the Konnectivity server secured in HyperShift?
+How does Konnectivity HA work?
+What breaks if Konnectivity is not working?
+Proxy in Hosted Clusters
+Storage
+What’s the recommended storage for the Etcd’s used for hosted control planes?
+Is shared storage a supported option for hosting the etcd database in an OpenShift Hypershift environment, and what are the considerations around this?
+What is the storage support matrix for HCP with Virt?
+How can object store be used from a hosted cluster in a self-service manner with KubeVirt?
+Can internal ODF be deployed for Bare Metal Hosted clusters?
+Can an external ODF be used for both infra and hosted clusters?
+Upgrades
+What does it mean when it is said that Control Plane and Data Plane upgrades are decoupled?
+How are Control Plane upgrades driven?
+Who drives Node upgrades?
+What policy does a Cluster need to satisfy at any time?
+What dictates the version of the Control Plane in Control Plane upgrades?
+How does the HostedCluster propagate the release in Control Plane upgrades?
+What does the HostedControlPlane do during the rollout of the new version of the Control Plane components?
+What dictates the version of the Nodes assigned to a particular NodePool in Data Plane upgrades?
+How does the NodePool perform a Replace/InPlace rolling upgrade?
+When is Replace mode the best mode for Upgrade?
+When is InPlace mode the best mode for Upgrade?
+What is the difference between standalone Remote workers and HCP?
+Does EUS to EUS upgrades make sense in the context of HCP? Especially for hosted clusters? If so, what would be the procedure?
+Machine Configuration
+How to Configure Machine Parameters in HCP?
+How can I troubleshoot a NodePool that doesn't apply my MachineConfig?
+How do NodePools/Machines work with HCP?
+Migration
+Is it possible to migrate from an existing deployment to a hosted control plane deployment strategy? What is the downtime in terms of the control plane?
+AWS Specific
+Can HyperShift resources created for a cluster be tagged on AWS
+Agent Provider
+Is there any labs or guides for deploying HCP on Baremetal?
+What is the difference between Agent Baremetal and Non-Baremetal Agent?
+OpenShift Virtualization
+Can I deploy clusters using ACM with hosted control planes and VM workers from another OCP cluster?
+How does KubeVirt CSI work?
+How does KubeVirt-CSI ensure Isolation?
+How does network isolation work in an OpenShift hosted cluster when running multiple customers on the same bare-metal cluster?
+It is supported to expose a NodePort service from the hosted cluster dataplane?
+Why HCP with OpenShift Virtualization is the preferred way to implement OCP on OCP?
+Sizing & Performance
+What is the sizing guidance for HCP?
+How can a Hosted control planes setup be expected to work performance-wise if a worker is located in the public cloud while control-plane is on-prem?
+Auth
+How to configure oAuth with HCP?
+Architecture
+What are the Main Components of a Hosted Control-Plane?
+Testing & Debugging
+Can Hosted Control Plane (HCP) be configured to run on a Single Node OpenShift (SNO)?
+Hardening & Tenant Isolation
+What are the different modes of Isolation?
+Shared Everything
+Shared Nothing
+Dedicated Request Serving Nodes (WIP)
+How is Default Control Plane Isolation Achieved?
+Can the Management Cluster Workers be Shared with “normal” workloads?
+Can Hosted Control Planes aid in Multi-tenant Workload Isolation?
+Early Access Program (EAP) for Self-managed Hosted Control Planes
+How do I nominate my customer?
+What’s the Scope for the EAP
+Miscellaneous
+What is the best practice to run mixed production and non-production HCP clusters on the same hosting cluster?
+Where are the pods for OLM (Operator Lifecycle Manager) created in the context of HCP?
+Is GPU support available in HCP?
+Can different OpenShift versions be supported for hosting clusters in HCP?
+Are there restrictions between the version of the hosted cluster and the version of the management cluster?
+What are the network or storage requirements for HCP, such as latency?
+Which CRD should be used in a helm chart for HyperShift, hostedcluster or hostedcontrolplane?
+Relation to Other Products/Projects
+How does hcp relate to *ks?
+How does HyperShift relate to the Heterogeneous architecture's effort?
+How does HyperShift relate to the KCP?
+What’s the intersection between Hosted Control Planes / KCP / ACM?
+Additional Resources
+Track with Jira
+Documentation for Hosted Control Planes
+Internal Enablement (self-managed)
+Labs
+Validated Patterns
+Internal Enablement (Managed)®®
+Upstream & GitHub (Core)
+Public references
+Overview Videos
+Where to reach for more questions?
+Quick Demos
+AWS
+ACM + KubeVirt
+Agent / Baremetal
+Call for Reference Architectures (CFRA)
+
+Can’t Find What You are Looking For? 
+
+
+If you didn’t find what you are looking for, please add a suggestion using the suggest feature of google docs and we will work to get it answer asap. 
+
+
+
+Questions to be answered: 
+
+
+<add your question here as a suggestion> 
+Is “bursting” a viable use-case e.g. for DR?  Using a single HCP, bring up pods in my existing AWS worker pool, should my on-prem (app on bare-metal worker-pool) fail.  Images are accessible from both locations. (Assuming can have > 1 worker-pool in a managed cluster). 
+I see now => “Correct, none is not a supported configuration” so this will not be possible. 
+
+Documentation Requests
+Currently we are working on improving the documentation, we are prioritizing content coverage, if you would like to know what we are working on, check this list: Jira Doc list 
+
+Have an Unaddressed Use-case? Create an RFE!
+Go here: https://issues.redhat.com/projects/RFE/issues
+Create a Feature Request with Hosted Control Planes as component. 
+Add a case ticket, justification, customers, and as much context as you can provide.
+Provide Feedback about a Use-case or Just Speak your Mind 🙂
+https://forms.gle/BHQx3pADGui7LdB9A 
+
+
+
+Important Acronyms
+ACM = Advanced Cluster Management 
+MCE = Multicluster Engine for Kubernetes Operator
+HCP = Hosted Control Planes 
+HC = Hosted Cluster (the API representation of a cluster in HyperShift)
+Node Pool = The API representation of machines/nodes in HyperShift
+
+More here: Hosted control planes overview 
+General Information & Overview
+What is Hosted Control Planes (HyperShift)? 
+Hosted control planes is a form factor of Red Hat OpenShift Container Platform based on the HyperShift project (i.e., hosted control planes is the product while HyperShift is the project) but it follows a distinct architectural model. 
+
+When using standalone OpenShift, the control plane and data plane are intertwined. It requires a minimum of 3 nodes, be it Virtual Machines or Baremetal servers, to host the control-plane artifacts like the api-server, controller-manager,… and to ensure a quorum. Additionally, the network stack is usually shared, meaning the control-plane and data-plane share the same network domain. While standalone OpenShift works well for a small number of clusters, it may not be ideal cost-wise and segmentation-wise for multi-cluster scale deployments due to the high costs involved and the increasing number of personas.
+
+To address this, Red Hat provides OpenShift with hosted control planes in addition to standalone OpenShift. Hosted Control Planes (HCP) is based on the upstream Red Hat project HyperShift which can be thought of as a middleware for hosting OpenShift control planes at scale. HyperShift solves for cost and time to provision, as well as strong separation of concerns between management and workloads. 
+
+By “separation of concerns” we mean that HCP:
+
+
+Provides network domain separation between control-plane and workloads.
+More personas, namely the provider and consumer personas  which help segregate roles and focus permissions.
+
+
+Additionally HCP: 
+
+Offers a shared interface for fleet administrators and Site Reliability Engineers (SREs) to operate multiple clusters easily. 
+Treats the control plane like any other workload, enabling administrators to use the same stack to monitor, secure, and operate their applications while managing the control plane.
+What are the main personas for Hosted Control Planes (HyperShift)? 
+Cluster Service Provider: Equal to the SRE (either Red Hat’s or the Customer’s). Users assuming this role are usually cluster-admins on the management cluster and have RBAC to monitor and own the availability of the HyperShift operator as well as the control planes for the tenant’s hosted clusters. 
+Cluster Service Consumer: Can request Hosted Clusters and interact with NodePools (to upgrade,...). Users assuming this role have RBAC to CRUD HC/NodePools within some logical boundary. 
+Cluster Instance Admin: The user with a cluster-admin role in the provisioned Hosted Cluster, but may have no power over when/how the cluster is upgraded or configured. May see some configuration projected into the cluster in a read-only fashion.
+Cluster (Instance) User: Maps to a developer today in standalone OCP. They will not have a view or insight into OperatorHub, Machines, etc.
+
+
+Why HyperShift? 
+The decoupling of the CP and DP introduced multiple potential benefits and paves the way for a Hybrid-cloud approach. Below are possibilities that HyperShift as a technology enables (Note: that NOT all of these benefits will be available immediately in the product). 
+
+
+Trust Segmentation & Human Error Reduction: Management plane for control planes and cloud credentials separate from the end-user cluster. A separate network of management from the workload. Furthermore, with the control-plane managed, it is harder for users to basically shoot themselves in the foot and destroy their own clusters since they won’t be seeing the CP resources in the first place.  Check how this segmentation takes place in terms of personas here. 
+Cheaper Control Planes: You can host ~7-21 control planes into the same three machines you were using for 1 control plane. And run ~1000 control planes on 150 nodes. Thus you run most densely on existing hardware. Which also makes HA clusters cheaper.
+Immediate Clusters: Since the control plane consists of pods being launched on OpenShift, you are not waiting for machines to provision.
+Kubernetes Managing Kubernetes: Having control-plane as Kubernetes workloads immediately unlocks for free all the features of Kubernetes such as HPA/VPA, cheap HA in the form of replicas, control-plane Hibernation now that control-plane is represented as deployments, pods, ... etc. 
+Infra Component Isolation: Registries, HAProxy, Cluster Monitoring, Storage Nodes, and other infra type components are allowed to be pushed out to the tenant’s cloud provider account isolating their usage of those to just themselves
+Increased Life Cycle Options: You can upgrade the consolidated control planes out of cycle from the segmented worker nodes, including embargoed CVEs.
+Future Mixed Management & Workers IaaS: Although it is not in the solution today, we feel we could  get to running the control plane on a different IaaS provider than the workers faster under this architecture
+Heterogeneous Arch Clusters: We can more easily run control planes on one CPU chip type (ie x86) and the workers on a different one (ie ARM or even Power/Z).
+Easier Multi-Cluster Management: More consolidated multi-cluster management which results in fewer external factors influencing the cluster status and consistency
+Cross Cluster Delivery Benefits: As we look to have more and more layered offerings such as service mesh, server-less, pipelines, and other span multiple clusters, having a concept of externalized control planes may make delivering such solutions easier.
+Easy Operability: Think about SREs. Instead of chasing down cluster control-planes, they would now have a central-pane of glass where they could debug and navigate their way even to cluster data-plane. Consolidated operations, less Time To Resolution (TTR), and higher productivity become low-hanging fruits.
+What are example use-cases for Hosted Control Planes? 
+
+
+
+An infrastructure admin, who wants to increase server utilization by using it to host the control-planes of multiple clusters as efficiently as possible. Hosted control planes can help by allowing CP from multiple clusters to be shared on the same host/node. Unlike standalone OpenShift it does not require dedicated nodes to host the control plane. 
+A network admin who defines a strict network security policy that mandates 1) network separation between the cluster control plane and the data plane, 2) only allowing application workloads on the data plane. Hosted control planes help by using the management cluster network domain to host the CP network and a dedicated network domain for each hosted cluster (an OpenShift cluster with hosted control planes). The hosted cluster networking is disjoint from the networking of the hosting service cluster, where the control planes of hosted clusters live.
+A fleet/cluster-service admin who wishes to upgrade the control plane only without upgrading the entire cluster, hosted control planes facilitates the maintenance of the control plane versus workers due to the natural decoupling in the architecture, which does not require an upgrade for the entire cluster. 
+A developer who cares more about developing and testing their application than waiting for a cluster or infrastructure to be ready, or who wants strong API boundaries to test a potentially leaky codebase. Hosted control planes reduce the time and barriers to a working cluster and make one cluster per application (if desired) easily attainable.
+A security admin who would like to use the cluster as a hard boundary for multi-tenancy. Hosted control planes provide an easy and cost-efficient way to provision clusters (by decoupling the control-plane and hosting the control-plane as workloads), thus reducing barriers to clusters and encouraging using the cluster as a tenancy boundary. 
+
+What is the difference between Virtualized Control Planes and Hosted Control Planes? 
+Check:
+ Hosted Control Planes with KubeVirt Workers Enablement 
+Hosted vs virtualized control plane 
+
+How can I get started with Hosted Control Planes?
+Self-managed
+Hosted control planes for Red Hat OpenShift is based on the HyperShift project. Hosted control planes is delivered through the Multicluster-Engine for Kubernetes Operator (MCE) as an add-on. To get started with the tech preview providers, please follow the official documentation.
+
+
+
+
+
+If you just want to test and develop/test, please visit HyperShift’s project documentation for developers: https://hypershift-docs.netlify.app/ 
+
+Managed (ROSA)
+Follow the documentation.
+
+What is the difference between standalone and Hosted (HCP) OpenShift? 
+Difference between Standalone OpenShift and HCP
+Consumption Flavors (Self-managed & Managed) 
+To bring hosted control planes to our customers, we need the means to ship it (the product).  HyperShift will be delivered as hosted control planes (the feature name) through the Multi-Cluster Engine for Kubernetes operator. 
+
+What is the difference between Self-managed & Managed Hosted Control Planes? 
+There are two parent use cases for hosted-control-planes: 
+ 
+Self-managed: In that case, Red Hat would provide hosted control planes as a service that is managed and SREed by the customer for their tenants (hence "self"-managed). In this management model, our external customers are the direct consumers of the multi-cluster control plane as a service. Once MCE is installed, they can start to self-service dedicated control planes. 
+ 
+Managed (Cloud Services): This is OpenShift as a managed service, today we only "manage" the CP, and share the responsibility for other system components, more info here. To reduce management costs incurred by service delivery organizations which translates to operating profit (by reducing variable costs per control-plane), as well as to improve user experience, lower platform overhead (allow customers to focus mostly on writing applications and not concern themselves with infrastructure artifacts), and improve the cluster provisioning experience. HyperShift is shipped via MCE, and delivered to Red Hat managed SREs (same consumption route). However, for managed services, additional tooling needs to be refactored to support the new provisioning path. Furthermore, unlike self-managed where customers are free to bring their own observability stack, Red Hat managed SREs need to observe the managed fleet to ensure compliance with SLOs/SLIs/…
+
+
+
+Where can I find more about managed hosted control planes (cloud services)?
+ROSA with Hosted Control Planes Enablement
+FAQ_ROSA with hosted control planes - HCP
+Product Information
+Where is the HCP lifecycle documented?
+
+The Hypershift operator provided by HCP is not a standalone operator, it ships with the Multicluste engine for Kubernetes. 
+OpenShift Operator Life Cycles - Red Hat Customer Portal
+
+ 
+
+
+
+Related document that articulates the support for HCP with MCE: HCP questions related to versions
+Are Hosted Control Planes (HCP) GA and Supported and - if so - in which variants (managed/self-hosted)?
+For details on which providers are GA and supported please check the documentation alongside OCP 4.16 , and the support matrix  for ACM 2.11 (MCE 2.6)
+
+https://docs.openshift.com/container-platform/4.16/hosted_control_planes/hcp-getting-started.htm
+Red Hat Advanced Cluster Management for Kubernetes 2.11 Support Matrix
+Is it a technical requirement to use Hosted Control Planes (HCP) with Advanced Cluster Management (ACM)
+No, it is not a technical requirement to use HCP with ACM. HCP features can be utilized without ACM. The Multicluster Engine for Kubernetes (MCE), which is a separate operator, supports HCP features and is a built-in part of the OpenShift Container Platform (OCP). 
+
+While MCE is automatically included with ACM and is part of the OCP SKU, it functions independently of ACM. This means that customers interested only in HCP do not need to install ACM unless their management needs exceed what MCE provides, at which point they can consider upgrading to ACM to access additional features.
+What is the current plan for delivering managed hosted control planes (cloud services)?
+Track the Jira: https://issues.redhat.com/browse/HATSTRAT-236 
+
+HyperShift is project,  while OpenShift with hosted control-planes is the product. Today, we do have OpenShift as a service, that’s our managed offering, we do have ROSA, ARO, and OSD (for AWS, Azure, and GCP). HyperShift will be the engine to those in the future.
+
+We are starting with ROSA as the first managed OpenShift offering to be backed up by HyperShift, then progressing to the rest of the services. For the timeline, please check the roadmap, and if you are looking for more context, check the HyperShift strategy document:Red Hat & HyperShift (aka Hosted Control Planes) Strategy [Live Document] 
+
+HyperShift will initially be opt-in, i.e., when creating managed OpenShift clusters users will choose whether the clusters will be backed up by standalone OpenShift or OpenShift with Hosted Control Planes (HyperShift). 
+What does it meant that both the management cluster and workers must run on the same infrastructure?
+Generally speaking, when we say that both the management cluster and workers must run on the same infrastructure we mean that we can deploy these components either on-prem (i.e baremetal, OCP Virt o VMWare) or in the cloud (i.e AWS or Azure).
+Which Platforms does Managed Hosted Control Planes support? 
+ROSA w/ HCP is Generally available. 
+ARO w/ HCP is targeted towards the 2H of 2024
+
+Which Regions are supported with ROSA HCP? 
+Check the table here: Creating ROSA with HCP clusters using the default options 
+
+When will ROSA HCP be in parity with ROSA-classic compliance? 
+Compliance parity is scheduled for end of April, with the exception of HIPAA...which should be available by end of August
+
+Compliance Roadmap_Commercial
+
+
+What is the current plan for delivering self-managed Hosted Control Planes? 
+Track the Jira: https://issues.redhat.com/browse/OCPBU-433 
+
+HyperShift will be delivered through the Multi-Cluster Engine operator (Introduction to multicluster engine for Kubernetes operator). 
+
+More information on MCE can be found here: Multi-cluster Engine (MCE) FAQ.
+Which Infrastructure Providers will Self-managed Hosted Control Planes (HyperShift) support? 
+Check the roadmap here: https://issues.redhat.com/secure/Dashboard.jspa?selectPageId=12347121 (Hosted Control Planes component).
+
+
+For self-managed, check the preview tracker in the release notes.
+
+Will Self-managed Hosted Control Planes be available on Bare Metal? 
+Yes, HCP supports BM via the agent provider. 
+
+HyperShift + Agent
+HyperShift-Assisted First Demo
+How will Self-managed Hosted Control Planes work with the KubeVirt Provider? 
+
+Check: 2022 - Everything Hypershift/KubeVirt by David Vossel for details.  
+
+
+
+
+Will VMware as an infra target be supported as a provider today?  
+No plan to support vSphere directly as a native CAPI provider for hosted control planes near-term. That said, a upcoming feature to allow non-BM machines, in that case vSphere, to join a hosted control-plane as an agent via the agent provider. 
+
+If you have a customer who is interested in vSphere as a standalone provider, feel free to add the case here: https://issues.redhat.com/browse/RFE-4071 
+Does Self-managed Hosted Control Planes work with OSP? 
+The provider is currently in developer-preview, with limited support. To prompt the provider to technology-preview, and further (e.g., GA), we are looking for feedback. You can use this form: https://forms.gle/BHQx3pADGui7LdB9A  to express interest in the provider and provide feedback. You can also ping the OSP provider team: Emilien Macchi, Eric Duen and Gil Rosenberg to share use-cases and feedback directly
+
+
+Can workers of the same cluster be deployed cloud and partially on premise?
+Workers of the same clusters can not be on different platforms. 
+
+
+Will we support HCP control planes on premise and workers in the cloud?
+Technically possible today but we have not tested the different permutations. TL;DR not a supported configuration in the product today. 
+
+For testing, there is nothing that should prevent this from working. 
+
+IS None Provider supported with Hosted Control Planes? 
+None is still a thing with HyperShift but because historically we have seen many support issues in standalone OCP we decided not to promote it as a supported configuration in the product (HCP) for now.
+
+However, feel free to visit the upstream HyperShift project documentation (can be outdated) if you intend to hack/test.
+
+
+What are possible HCP Architecture Possibilities? 
+
+
+What are the different Hosted Control Planes Topologies with ACM (Hub/Management/Parent/Child/…)? 
+Is a Hosted Control Plane (HCP) management cluster required or suggested to be on the same ACM cluster, or can it be decoupled from it? What are the advantages and disadvantages of each approach?
+
+Ref: https://github.com/stolostron/hypershift-addon-operator/blob/main/docs/hosting_cluster_topologies.md 
+
+Both setups are possible. In one scenario, ACM can include MCE and HyperShift, allowing the ACM hub to also serve as the HCP management cluster. This integrates cluster lifecycle features and HCP management within a single environment, potentially simplifying operations. Alternatively, one can have a separate HCP management cluster by installing MCE on a different cluster and disabling MCE from self-managing. This allows the primary ACM hub to manage the secondary MCE hub/management cluster, providing a separation of concerns and underlining ACM's value as a day-2 lifecycle manager, irrespective of cluster creation method. Each approach has its considerations in terms of management complexity, integration, and operational separation.
+
+Can I deploy MCE as a Management Cluster deployed by ACM? 
+Yes since ACM 2.11, MCE 2.6: 
+https://docs.redhat.com/en/documentation/red_hat_advanced_cluster_management_for_kubernetes/2.11/html/clusters/cluster_mce_overview#config-hcp-autoimport 
+https://github.com/stolostron/hypershift-addon-operator/blob/main/docs/discovering_hostedclusters.md 
+Can compact (three-node) OpenShift clusters act as a hub cluster for self-managed Hosted Control Planes? 
+Not immediately supported. That said, we are testing this setup for scale in the future. 
+
+Jira to track: https://issues.redhat.com/browse/OCPSTRAT-1284 
+
+What is the Max number of worker nodes supported by a HCP?
+Latest test max is 64 nodes which was due to a bug that was fixed. Progress is being made to move that to 500 nodes.
+
+
+Can Hosted Control Planes run on Compact OpenShift management clusters? 
+Will be possible with constraints subject to the risk profile: https://issues.redhat.com/browse/OCPSTRAT-1284 
+
+For Operator Lifecycle Management in HyperShift, is it advisable to set it as management or guest?
+Depends, setting OLM to run as guests reduces CP budget but adds more overhead on the cluster admin. While possible to choose, once you choose one option you can't change it day 2. 
+Sales Related
+Is a separate subscription needed for Self-managed Hosted Control Planes? 
+No. 
+
+Hosted Control Planes is shipped via MCE. MCE is part of OCP’s subscription (i.e., customers entitled to OCP are entitled to the HCP version of it). When ACM (Advanced Cluster Management) is used, additional subscription is required. However, with MCE (Multi Cluster Engine), the subscription covers the Undercloud within the OCP (OpenShift Container Platform) subscription, hence no separate payment is needed for the Undercloud.
+
+MCE handles basic cluster-lifecycle tasks, but lacks in fleet-management tasks. That’s what ACM does best. For additional fleet management tasks, customers will need an additional subscription for ACM. 
+
+
+For more information, check: Self-managed OpenShift Sizing & Subscription Guide 
+What is the right subscription setup for Hosted Control Planes with the OpenShift Virtualization Provider? 
+
+Before the new OpenShift Virtualization Engine and the new Baremetal SKUs
+If a customer wants to host virtualized OpenShift worker nodes using OpenShift Virtualization, they only need to purchase enough core-based OpenShift subscriptions to cover those nodes.
+
+For example, the customer wants to run three virtualized OpenShift worker nodes on a bare metal server. Each virtualized worker node will have 2 physical cores assigned to it. The customer needs to buy: Three subscriptions to MCT2735 - Red Hat OpenShift Container Platform, Premium (2 Cores or 4 vCPUs)
+
+This allows the customer to install OpenShift Virtualization on the bare metal server and to use OpenShift in three virtual machines assigned 2 physical cores each. If the customer wants to run non-OpenShift virtualized workloads on that same server, then they have to purchase the OpenShift (Bare Metal Node) subscription.
+
+
+
+
+
+
+Additional References:
+
+
+OpenShift core vs socket entitlement examples
+ Hosted Control Planes with  OpenShift Virtualization Workers Enablement
+
+
+After the new OpenShift Virtualization Engine (OVE) and the new Baremetal SKUs (Effective January 2025)
+
+If a customer wants to host virtualized OpenShift worker nodes using OpenShift Virtualization, they no longer need to purchase core-based OpenShift subscriptions for those nodes. Instead, they can use the Unlimited Guest Cluster entitlement provided by the new OpenShift Bare Metal SKUs.
+
+For example, if the customer wants to run three virtualized OpenShift worker nodes on a bare-metal server, they only need to ensure the bare-metal server is licensed with the OpenShift Bare Metal subscription. Each virtualized worker node can be assigned any number of physical cores without requiring additional core-based subscriptions.
+
+This new model allows the customer to install OpenShift Virtualization on the bare-metal server and use OpenShift in an unlimited number of virtual machines, simplifying cost and scaling.
+
+If the customer wants to run non-OpenShift virtualized workloads on that same server, they will still need to purchase the OpenShift (Bare Metal Node) subscription for proper licensing of mixed-use workloads.
+
+Under this new model, the customer is entitled to unlimited OpenShift guest clusters using the OpenShift Bare Metal subscription:
+Bare-Metal Subscription Requirement: The customer only needs to license the bare-metal server with the OpenShift Bare Metal SKU.
+No core-based licensing is required for virtualized OpenShift worker nodes.
+The customer can run any number of OpenShift worker nodes as virtual machines on the entitled bare-metal server, regardless of cores assigned.
+Cost Implication: The new model simplifies licensing by removing per-core charges for OpenShift worker nodes. Scaling is no longer constrained by core-based pricing, reducing costs and administrative overhead for large deployments.
+
+Additional References
+OpenShift bare metal subscription changes-internal enablement-Q1-CY25 (revised)
+What subscription type is required for OCP-V and ODF?
+OPP+Advanced subscriptions are required for the worker nodes in the hosted clusters. ODF does not need separate entitlements for both the management and the hosted clusters. For customers needing to access ODF from the hosting cluster, the OPP+Advanced SKU is required because storage is always externally accessed. 
+
+Can the customer use only master and infra nodes for the management cluster that hosts control plane pods, or are worker nodes needed with associated subscriptions?
+Infra nodes are workers with an “infra” label, so you will need workers. In situations where compacting (reusing standalone control plane nodes) is needed, you will be able to do it with a limit of up to 3 hosted control planes  (see https://issues.redhat.com/browse/OCPSTRAT-1284). 
+Can Hosted Control Planes be used for OKE Clusters? 
+OCP and OKE are technically the same thing, the limit is really on what's available for use in the box [1][2]. HCP can be used to host the control-planes of OCP or OKE, however, the limitations to using OKE still apply. What can be done in terms of operators and features in an OKE cluster is much less than what can be done with an OCP cluster.
+
+Is HCP included with OKE? 
+For pure HCP cluster lifecycle, HCP is included with OKE simply because MCE is (HCP ships with MCE). However, there are features that won’t be accessible with OKE such as management cluster Control-Plane monitoring (being able to see key metrics per control-planes which relies on user-workload monitoring). 
+
+
+Architecture & Tech-related
+Observability
+What metrics will the Cluster Instance Admin vs. Cluster Service Consumer have access to?
+As mentioned earlier, HyperShift provides externally hosted control planes that are decoupled from workers and workloads. This changes the cluster view, for example, a Cluster Instance admin (see the personas above) can no longer see the control-plane (the API server, etcd, OpenShift api-server, etc), thus won't be able to view metrics related to the control-plane, the Cluster Service Consumer will have access to those metrics. A Cluster Instance Admin can still use User workload monitoring to collect metrics for the workloads hosted on the cluster. 
+
+More information about the monitoring architecture can be found in the corresponding OpenShift enhancement proposal here. 
+
+Disconnected
+Disconnected FAQ HCP
+High Availability & Disaster Recovery 
+Please also see downstream official documentation https://docs.redhat.com/en/documentation/openshift_container_platform/4.18/html/hosted_control_planes/high-availability-for-hosted-control-planes#hcp-mgmt-component-loss-impact_about-hcp-ha 
+
+Hosted control planes run as workloads on the management cluster workers. You can make them run on infrastructure nodes too, see Labeling management cluster nodes.
+
+Below is a high-level summary on the topic of HA and Disaster recovery covering the different failure scenarios. I.e., It’s not 1 or 0, there are scenarios where the control plane is impacted but not the data plane (the workloads).
+
+Failure
+Result
+Loss of management cluster worker
+Hosted control plane API is still available.
+Hosted cluster data plane is still available.
+Impacted hosted control plane member is rescheduled.
+Loss of management cluster availability zone
+Hosted control plane API is still available.
+Hosted cluster data plane is still available.
+Impacted hosted control plane maintains quorum.
+Loss of management cluster control plane
+Hosted control plane API is still available
+Hosted cluster data plane is still available
+Can’t add / destroy hosted clusters until recovered
+Loss of management cluster control plane and workers
+Hosted control plane API is not available.
+Hosted cluster data plane is still available.
+
+
+See this Demo as an example to show-case that it’s not black and white: Hypershift Hosted Control Planes resilience to management cluster failures 
+How do you HA the Management Cluster (Hosting Service Cluster) in HyperShift?
+We have a HighlyAvailablePolicy for HyperShift. The control plane is basically replicated at 3 replicas per CP distributed across different nodes and zones (with anti-affinities).  Etcd runs in the quorum, Clusters state is persisted in PV.
+
+For on-prem deployments availability zones are presented as failure domains with host labeling. 
+What happens when the Hosting Service Cluster (aka Management Cluster) goes down?
+Below are some important things to consider:
+Management cluster should be highly available as any prod kube cluster.
+If the management cluster is down, workloads are not affected (control-path is decoupled from data-path). 
+This is a feature not a bug. 
+This is even more resilient than in regular topology because cp and dp can live in different accounts/infras.
+Data plane availability is ensured regardless of the management cluster.
+Management cluster loss just means service is degraded.
+Kube API native approach to migrate, kubectl all the things.
+
+Watch this: ​​https://www.youtube.com/watch?v=wLrYUgFBbNQ 
+
+Is there any suggested architecture for deploy HCP in HA Mode? 
+
+See the diagram below for a suggested architecture:
+
+
+
+Also be sure to always keep checking the docs, as we are always making changes to improve in this domain.
+Can I migrate a control-plane of a Hosted Cluster from one Management cluster to another in DR scenarios? 
+“Migration” is a procedure that should not be done unless there is a real need. For example: 
+
+
+Management Cluster is at capacity (better even is to consider creating a new hosted cluster for the workload on a different management cluster)
+Switching regions for data-locality/regulatory concerns.
+Hypershift operator is not working, it’s down and it cannot be recovered.
+
+
+The high-level procedure is as follows: 
+
+
+
+Below is an animated GIF that shows the entire process. For more information, consult the official documentation on AWS: Backup, restore, and disaster recovery for hosted control planes 
+
+
+Automated backup recovery is incoming in the product, can be tracked here: https://issues.redhat.com/browse/OCPSTRAT-989 
+
+For On-Prem backup/restore more documentation will be added, but the gist (after step 4 in the docs which provides reference on best-practice): 
+
+
+Create a Local Backup Directory: First, set up a directory on your local system or a designated server for storing the ETCD snapshot.
+Copy the Snapshot Locally: Use the oc cp command to transfer the snapshot from the ETCD container to your local storage. The command would be something like this: oc cp ${HOSTED_CLUSTER_NAMESPACE}/etcd-0:/var/lib/data/snapshot.db /path/to/backup/directory/snapshot.db
+Replace ${HOSTED_CLUSTER_NAMESPACE} with your hosted cluster's namespace, and /path/to/backup/directory/snapshot.db with your local backup directory path.
+
+
+What is the allowed latency for connections within a distributed Hosted Control Plane (HCP) setup across 3 data centers or Availability Zones?
+The allowed latency between the control plane and workers is around 200 milliseconds, similar to standalone OpenShift with remote worker nodes (in fact we take that limit from remote workers). 
+
+For connections between control plane nodes, they should be within the same “region” to maintain a healthy quorum and ensure optimal performance between etcd replicas.
+Networking
+Additional references: 
+
+
+Check Konnectivity deepdive: https://hypershift-docs.netlify.app/reference/konnectivity/ 
+https://github.com/openshift/enhancements/blob/master/enhancements/hypershift/networking/networking.md 
+Hosted Control Planes (HyperShift): Deep Dive - Slide 28 onwards by Ayush Garg
+
+
+What does networking look like between the management cluster and the hosted clusters? 
+Hosted Control Planes - Network Traffic Flow
+
+The Hosted Control Plane and Data Plane use the Konnectivity service to establish a tunnel for communications from the control plane to the data plane. This connection works as follows:
+The Konnectivity agent in the worker compute nodes, connects with the Konnectivity server running as part of the Hosted Control Plane.
+The Kubernetes API Server uses this tunnel to communicate with the compute nodes Kubelet.
+The compute nodes reach the Hosted Cluster API via an exposed service. Depending on the infrastructure where the Hosted Control Plane runs this service can be exposed via a load balancer, a node port, etc.
+The Konnectivity server is used by the Hosted Control Plane to consume services deployed in the hosted cluster namespace such as OLM, OpenShift Aggregated API and OAuth.
+
+
+
+
+Which firewall ports are needed for a hosted control plane? 
+
+
+In the context of Hosted Control Planes and Konnectivity, if Konnectivity establishes a bidirectional tunnel, why is a Konnectivity agent required on the management cluster?
+
+The Konnectivity agent is necessary on the management cluster because certain components, such as the OpenShift API server, OpenShift OAuth Server, and OLM Package Server, do not reside within the hosted cluster at the tenant side. These components are located on the management cluster. To facilitate communication with these components, the API server needs a method to reach them.
+
+Is the SDN shared between the management cluster and the hosted clusters (where workloads run)?
+No, the management cluster will have its own CNI; in the example below it’s SDN 0. Each hosted cluster can be configured with its own CIDR, its own network domain, and its own CNI.
+
+In the figure, we have two hosted clusters, each having its own CNI plugin, namely SDN 1 and SDN 2. 
+
+
+
+
+Does Hosted Control Planes support Third Party CNIs? 
+At present, HCP exclusively supports OVN-Kubernetes.
+You can deploy a cluster with “other” as networking type. 
+This means that HCP will not deploy a CNI
+Customers can work with networking partners to deploy/support the custom CNI
+
+Support of third-party plugins will be subject to future partnerships with the respective vendors and testing on HCP (which would be update here: https://access.redhat.com/articles/5436171) 
+Does Hypershift support both ipv4 and ipv6?
+Yes: https://issues.redhat.com/browse/HOSTEDCP-500 
+
+What are the guidelines for managing latency and configuration in a distributed network setup with control plane pods and worker nodes in separate locations?
+The guidelines are the same for remote workers, typical 200ms between the control-plane and workers should be maintained. 
+
+Is there an issue with overlapping cluster-internal networks between HCP clusters, similar to the issues with ACM?
+For bare-metal deployments, there's no issue with overlapping cluster-internal networks. However, for OpenShift Virtualization, there might be complications due to the reuse of the underlying network. This issue is being addressed in an ongoing development (refer to CNV-35304).
+What is the difference between Kube-proxy and Konnectivity in Hosted Clusters (Managed Clusters when MCE/ACM are in the picture as well)? 
+The kube-api-proxy is about proxying API requests from worker node pods on the pod network to the API server. All pods start with some environment variables that point to the API server, for example, KUBERNETES_SERVICE_HOST=<some IP>. There's also a default API server service local to each cluster. Pod workloads expect these endpoints to point directly to the API server, and the kube-api-proxy provides this functionality to the worker nodes.
+
+The Konnectivity agent is similar but works more at the host level, allowing the HCP components to communicate with services on the worker nodes. For instance, if we want to execute a command in a pod running on the worker nodes (oc pod exec), that connection hits the API server on the hosted control plane, then proxies the connection over Konnectivity to a worker node's kubelet, which then drops you into the pod's environment.
+
+Now, if a pod on a worker node wants to talk to the API server in the hosted control plane using the default kubernetes.default.svc DNS entry, on the worker nodes, that DNS entry will point to the kube-api-proxy, which routes to the HCP's API server outside of the cluster.
+
+
+
+
+
+
+Where do Ingress pods run with HCP? 
+Related post: https://developers.redhat.com/articles/2024/12/04/hosted-control-plane-operations?source=sso 
+
+
+
+
+Images thanks to Robert Bohne!
+What is the correct way to use NodePort in a HyperShift Control Plane (HCP) setup with a management OCP cluster on bare metal and an external third-party load balancer? 
+When using an external load balancer (e.g., F5) with your HCP/HyperShift setup, you can indeed use NodePort. For the host address, you can configure it as api.${HOSTED_CLUSTER_NAME}.${BASEDOMAIN}, which will resolve to the IP of the load balancer. The LB will then forward traffic to the management nodes on the specified NodePort. Each management node will be listening on that NodePort.
+
+Regarding communication, the hosted nodes will talk to the API pods running on the management cluster via the API DNS name, not directly over Konnectivity. Konnectivity is used for the control plane to communicate with the nodes.
+It's also possible to specify the NodePort directly in the HostedCluster specification.
+
+
+Konnectivity FAQ
+Upstream allows grpc or http-connect mode for the konnectivity protocol, why does HyperShift use http-connect? 
+We need to use http-connect to allow clients other than the Kubernetes API server to send traffic through the konnectivity server. The socks5 and http proxies can use http-connect to establish a connection through konnectivity-server.
+Upstream allows connecting to the konnectivity server via unix domain socket or via tcp port. Why does HyperShift use tcp port? 
+The konnectivity server only allows one way of serving (via UDS or TCP port). We need to use a TCP port so we can expose it as a service to clients that use the socks5 and http proxies.
+Why does Konnectivity server run as a sidecar of the Kubernetes API server and not in its own deployment? 
+When running as a sidecar, the Kubernetes API server can communicate with the Konnectivity server very fast, since traffic happens over the loopback interface. It also allows the Kubernetes API server to communicate with a konnectivity-server as soon as it comes up.
+How is the Konnectivity server secured in HyperShift? 
+We use mTLS to authenticate connections to Konnectivity either from clients like Kubernetes API server or from agents. The certificates used for authentication are in the konnectivity-client and konnectivity-agent secrets in the control plane.
+How does Konnectivity HA work? 
+When a HyperShift control plane runs in HA mode, there are by default 3 replicas of the konnectivity server (1 sidecar per kube-apiserver pod). Each server generates an ID when starting up and the number of total servers is passed as a command line argument. When an agent dials the konnectivity server endpoint, the server's response includes its own ID and the total number of servers that the agent can expect. If greater than one, the agent keeps dialing the konnectivity server endpoint until it can establish connections with the same number of unique servers (identified by their unique id).
+What breaks if Konnectivity is not working? 
+The first thing that breaks when Konnectivity is not working is any operation that requires that the Kubernetes API server access kubelets on nodes. This includes getting logs from pods, proxying to pods/services, port-forwarding and remote execution. The next thing that breaks is any aggregated API servers and webhooks that use data plane services.
+
+Proxy in Hosted Clusters
+State of proxy fixes: HyperShift Proxy Bugs/PRs
+Explainer: HyperShift Proxy Fixes
+
+Storage
+What’s the recommended storage for the Etcd’s used for hosted control planes?
+The current recommendation is using LVM. 
+Is shared storage a supported option for hosting the etcd database in an OpenShift Hypershift environment, and what are the considerations around this?
+While the documentation currently recommends using local storage for etcd in Hypershift, using shared storage is not explicitly prohibited just gated. The key factor is ensuring acceptable performance for etcd, particularly regarding latency.
+
+Testing is important to guarantee performance with shared storage. OpenShift QE doesn't explicitly test every possible storage permutation, making field testing important. You can use tools like fio to benchmark potential storage solutions.
+
+The determining factor is meeting etcd's latency requirements. An important metric is the fsync duration, which should ideally be less than 10 ms. If shared storage can deliver comparable or better performance than local storage, it can be a viable option. 
+
+To validate, see this section Recommended etcd practices - Recommended performance and scalability practices | Scalability and performance | OpenShift Container Platform 4.17 
+
+
+Shared storage for etcd in Hypershift is not directly refuted, It can brings benefits especially related to HA of etcds when it comes to losing nodes in the cluster (e.g., losing two nodes while etcd replicas move to healthy nodes) and etcd resurrection on remaining nodes relying on shared storage, the main tradeoff is performance, as a result it’s important to ensure etcd is within the well-tested limits.
+
+
+In our perf/scale testing with ODF: 
+
+wal fsync latency: >7500ms (shared pool, initial) -> Disqualifies it as an option for etcd storage
+~10ms (isolated pool): touches the upper limits of what is recommended. 
+
+In our perf/scale testing with LVM: 
+
+wal fsync latency: <10ms (up to 14.7K API requests/sec), potential increase above that
+Near-native performance for etcd, ensuring fast read/write operations
+
+In our perf/scale testing with LSO:
+*wal fsync latency: <2ms
+Offers the absolute minimum latency for etcd access.
+No Dynamic Provisioning:  Requires pre-allocated storage, reducing flexibility.
+
+
+
+Storage
+Latency
+Dynamic Provisioning
+Consolidation
+Portability
+ODF
+High
+Yes
+Yes
+Yes
+LSO
+Low
+No
+No
+No
+LVM
+Low
+Yes
+Yes
+No
+
+
+
+
+Storage Backend
+Pros
+Cons
+Use Cases
+Performance Numbers (Approximate)
+ODF
+Easier migration and recovery of etcd data.
+Higher Latency: Can impact etcd performance, especially with concurrent workloads.
+Environments requiring easy data portability and potential for live migration.
+wal fsync latency: >7500ms (shared pool, initial), ~10ms (isolated pool)
+
+
+Can manage storage for multiple clusters from a single platform.
+Tuning Required: Needs careful configuration (isolated pools, replication) for optimal etcd performance.
+Smaller deployments with less demanding workloads, where careful tuning and isolation are feasible.
+
+
+
+
+
+
+Noisy Neighbor Risk:  Performance can be affected by other workloads sharing the same ODF infrastructure.
+Consider as a potential option as ODF matures and addresses performance limitations for latency-sensitive applications.
+
+
+LVM
+Near-native performance for etcd, ensuring fast read/write operations.
+Limited Portability: Migrating LVM volumes between different physical environments can be complex.
+Production-grade deployments with high API request rates and strict performance requirements.
+wal fsync latency: <10ms (up to 14.7K API requests/sec), potential increase above that
+
+
+Efficiently allocates and manages storage for etcd instances.
+
+
+Environments where high availability and fast recovery are paramount.
+
+
+
+
+Can support a large number of hosted clusters and high workload demands.
+
+
+Considered the most suitable option for latency-sensitive applications running on HyperShift.
+
+
+LSO
+Offers the absolute minimum latency for etcd access.
+No Dynamic Provisioning:  Requires pre-allocated storage, reducing flexibility.
+Highly specialized use cases requiring the absolute lowest possible latency, even at the cost of management complexity and limited scalability.
+ wal fsync latency: <2ms
+
+
+
+
+Each PVC consumes can full disk, not ideal for multi-tenant environments.
+For typical HyperShift deployments, prefer LVM.
+
+
+
+
+
+
+
+What is the storage support matrix for HCP with Virt? 
+See the docs: Configuring Storage with KubeVirt 
+
+Volume Mode and Access Mode Table
+
+
+Infra/Management CSI Capability
+Guest/Tenant CSI Capability
+VM Live Migration Support
+ Other Notes
+RWX: Block or Filesystem
+RWO Block or Filesystem
+RWX Block only
+Supported
+Infra block mode is preferred because infra Filesystem VolumeMode results in degraded guest block mode performance. Guest support for RWX Block VolumeMode is only supported when the guest cluster is OCP 4.16 or greater.
+RWO Block
+RWO Block or Filesystem
+Not Supported 
+Lack of Live Migration support impacts the ability to update the underlying Infra cluster hosting the KubeVirt VMs. 
+RWO Filesystem
+RWO Block or Filesystem
+Not Supported
+Lack of Live Migration support impacts the ability to update the underlying Infra cluster hosting the KubeVirt VMs. Infra Filesystem VolumeMode results in degraded guest block mode performance.
+
+
+
+
+
+
+
+
+Infra CSI Provider
+Tenant CSI Provider
+Tenant Capabilities
+Recommended
+Any RWX Block CSI Provider
+kubevirt-csi
+Basic -
+RWO Block and File only
+(No snapshot, no clone, no RWX)
+
+
+-
+ODF External Mode
+ODF Featureset
+
+
+-
+ODF Internal Mode
+(ODF in the hosting cluster)
+ODF Featureset - Not recommended
+(ODF in the hosted cluster)
+
+
+
+
+
+Infra/mgmt CSI Capability
+Enabled Tenant CSI capability 
+Customer impact
+Reasoning
+
+
+
+
+Today (4.16)
+Future
+
+
+
+
+Public Roadmap
+RWX Block
+(i.e. ODF Rados)
+Recommended
+RWO/RWX Block
+RWO File
+
+RWX File (dep. On OCPSTRAT-1272 )
+No support for RWX File
+RWX block volumes are supported and safe because they avoid data corruption.
+
+RWX filesystem volumes are not supported due to the risk of data corruption with multiple nodes writing to the same filesystem. 
+
+RWX filesystem volumes are problematic because if multiple containers (HCPs) on different nodes try to write to the same filesystem, it leads to data corruption. Supporting RWX filesystem would require a clustered filesystem, which is complex and not supported by many storage vendors.
+
+
+
+
+
+
+Internal Only Roadmap
+RWX File
+(ie. ODF CephFS)
+RWO/RWX Block
+RWO File
+
+RWX File (dep. On OCPSTRAT-1272 )
+
+
+
+
+RWO Block
+RWO Block
+
+
+Not desired, as problematic for Infra (no live migration support)
+
+
+RWO File
+RWO Block
+
+
+Not desired, as problematic for Infra (no live migration support)
+
+
+Snapshot
+N/A
+Done in 4.16 OCPSTRAT-1044 
+
+
+
+
+Cloning
+N/A
+Planned: OCPSTRAT-1271 
+
+
+
+
+Ephemeral volumes
+N/A
+Planned:  OCPSTRAT-1270 
+
+
+
+
+Wait for first consumer
+N/A
+Planned:  OCPSTRAT-1268 
+
+
+
+
+Volume Expansion
+N/A
+Planned: OCPSTRAT-1269 
+
+
+
+
+
+Additionally discussions: 
+
+
+https://redhat-internal.slack.com/archives/C068X44C8VB/p1727182746488839 
+How can object store be used from a hosted cluster in a self-service manner with KubeVirt?
+The KubeVirt Container Storage Interface (CSI) does not extend to work with object stores. However, object storage usage within the HCP OCP-Virt guest cluster can be configured similarly to standalone OCP setups.
+
+The admin should create the object buckets and hand it over to the hosted cluster admin. With internal mode, we just provide the storage via the CNV driver
+
+Can internal ODF be deployed for Bare Metal Hosted clusters?
+yes, you can deploy internal mode ODF for Bare Metal Hosted clusters. 
+
+Can an external ODF be used for both infra and hosted clusters?
+Yes.
+
+
+Can I create a cluster with a MDADM raid device as the root disk?
+Answer in progress…
+
+
+Upgrades
+This section is related to questions about upgrades. 
+
+
+
+Control planes and Node Pools upgrades are decoupled. Control Planes can be patched (.z) independently during maintenance time windows. 
+Control Planes can be on a different versions than NodePools, in the HCP architecture, this gives flexibility to upgrade workloads when feasible. 
+Hub (ACM)/Management Cluster (HyperShift) cluster upgrade should be done during maintenance time window during upgrade, nodes hosting control planes in HA mode are upgraded in a rolling manner. Which will not render the control plane unavailable.
+Single Replicas control planes SHOULD NOT be used in production! 
+What does it mean when it is said that Control Plane and Data Plane upgrades are decoupled?  
+
+It means that the upgrade process for the Control Plane and Data Plane are handled independently of each other. They do not have to occur at the same time or follow the same procedures.
+How are Control Plane upgrades driven?
+Control Plane upgrades are driven by the Cluster Service Provider via the HostedCluster object.
+
+Related document that articulates the support for HCP with MCE: Requirements for hosted control planes - Preparing to deploy hosted control planes | Hosted control planes | OpenShift Container Platform 4.17 
+
+HCP is packaged with MCE, and MCE's lifecycle is documented here: https://access.redhat.com/support/policy/updates/openshift_operators (which dictates which management cluster's version is supported with which MCE version). 
+
+Then, a particular MCE version ships a HyperShift operator that can deploy up to N-2 version clusters (where N is the version of OCP corresponding with the version of MCE pointing at now). Provisioning OpenShift clusters using HyperShift (packaged with MCE) will support N, N-1, and N-2 but not N+1. So, a 2.4 MCE (shipped alongside OCP 4.14) will support provisioning OCP clusters with 4.14, 4.13, and 4.12. The figure below shows the relationship. To provision a 4.15 cluster an upgrade to MCE is needed.
+
+Hosted clusters clusters can be upgraded through the UI using the YAML side view, from the CLI, or directly via the API. Currently, it isn't possible to upgrade from the ACM cluster after importing a HyperShift cluster. The primary method within the cluster configuration involves modifying the image parameter in the hostedcluster and nodepool YAML definitions.
+
+
+
+Who drives Node upgrades? 
+Node upgrades are driven by the Cluster Service Consumer via the NodePool object.
+
+What policy does a Cluster need to satisfy at any time?
+A Cluster needs to satisfy the Kubernetes version skew policy at all times. More information here: Managing hosted control planes 
+
+What dictates the version of the Control Plane in Control Plane upgrades? 
+HostedCluster.spec.release dictates the version of the Control Plane.
+
+How does the HostedCluster propagate the release in Control Plane upgrades? 
+The HostedCluster propagates the release to the HostedCluster.spec.release.
+What does the HostedControlPlane do during the rollout of the new version of the Control Plane components? 
+The HostedControlPlane orchestrates the rollout of the new version of the Control Plane components along with any OCP component through the new version of the ClusterVersionOperator.
+
+What dictates the version of the Nodes assigned to a particular NodePool in Data Plane upgrades? 
+NodePool.spec.release dictates the version of the Nodes assigned to a particular NodePool.
+
+How does the NodePool perform a Replace/InPlace rolling upgrade? 
+The NodePool will perform a Replace/InPlace rolling upgrade according to the NodePool.spec.management.upgradeType.
+
+When is Replace mode the best mode for Upgrade? 
+Replace is the best mode for Cloud providers. In this case, Hypershift will terminate the instance and recreate it using the new release.
+
+When is InPlace mode the best mode for Upgrade? 
+InPlace is the best mode for On-Premise as it will contact the provider NodePool and reboot the Nodes/Instances using the proper interface.
+
+What is the difference between standalone Remote workers and HCP? 
+The difference between RWNs with standalone and RWNs with HCP is mainly on how the control plane is hosted. With standalone, you’d still need dedicated VMs/BM nodes to host the control planes. While with HCP, you are able to re-use the underlying nodes to host multiple control-planes, each CP gets a dedicated namespace/project, and is treated (and operated on) as any other workload.
+
+Does EUS to EUS upgrades make sense in the context of HCP? Especially for hosted clusters? If so, what would be the procedure?
+
+Currently for EUS to EUS with HCP, the recommendation is to upgrade to version n+1, then to n+2 in lockstep vs. n+2 directly. 
+
+More work to n+2 is tracked here: https://issues.redhat.com/browse/OCPSTRAT-1728 
+
+Machine Configuration 
+How to Configure Machine Parameters in HCP?
+Example Scenario:
+
+I have a customer trying to specify maxPods in KubeletConfig in a Hosted Control Plane / Spoke HCP cluster. We aim to adjust the maxPods kubelet configuration on our spoke cluster managed by Hypershift / HCP. According to the provided documentation for standalone, this should be done in a kubeletconfig linked to a MachineConfigPool. However, the MachineConfigPool CRD doesn't exist in our spoke cluster. How can we modify the maxPods configuration on an HCP spoke cluster?
+
+Answer 
+MachineConfigPools aren't exposed in Hosted Clusters with HCP. Instead, you can adjust it using the NodePool API we provide with HCP. Have a look into the config section of the NodePoolSpec. 
+ How can I troubleshoot a NodePool that doesn't apply my MachineConfig?
+One thing to look at is to make sure that the machineconfig  is present in that nodepool's ignition payload. You can curl the ignition payload for that nodepool by looking at the corresponding user-data-xxx secret in the control plane namespace
+
+How do NodePools/Machines work with HCP?
+See: ROSA HCP Worker Nodes for more details.
+Migration
+Is it possible to migrate from an existing deployment to a hosted control plane deployment strategy? What is the downtime in terms of the control plane?
+
+Direct migration of an existing OCP cluster to HCP is not possible. However, we recommend the use of existing migration tooling, such as the Migration Toolkit for Containers, to move workloads between clusters. Hosted Control Planes still deploys OpenShift clusters, just with a different architecture, yet still is conformant OpenShift.
+
+If a customer is planning to adopt a Hosted Control Plane approach, they will have to deploy a new cluster with a Hosted Control Plane and migrate the workload from the existing cluster. This is because, currently, we support greenfield deployment only for the Hosted Control Plane.
+
+In terms of migrating only an existing OpenShift 4.x cluster control plane to a Hosted Control Plane deployment and resuming the connection with existing worker/infra nodes, this scenario is not supported at the moment. 
+AWS Specific
+Can HyperShift resources created for a cluster be tagged on AWS
+The resources we create in the customer account (either via the hypershift operator/cp or via operators inside the hosted cluster like ingress, registry, etc) can be tagged with custom tags via our API: https://hypershift-docs.netlify.app/reference/api/#hypershift.openshift.io/v1alpha1.AWSResourceTag 
+
+Agent Provider
+Is there any labs or guides for deploying HCP on Baremetal? 
+Lab https://labs.sysdeseng.com/hypershift-baremetal-lab/4.15/index.html 
+Hosted Control Planes SME Architectural Best Practices [Internal]
+
+Also contributions are welcome :)
+What is the difference between Agent Baremetal and Non-Baremetal Agent? 
+With baremetal you're directly installing on physical servers. This requires tools like Metal3 and BMO (Bare Metal Operator) to interact with the server's baseboard management controller (BMC) for things like power control and booting from the ISO. 
+
+With Non-bare metal (e.g., vSphere) you're working within a virtualization environment. For example, vSphere manages the underlying hardware and provides its own mechanisms for creating and booting VMs. 
+
+Bare Metal Host (BMH) CRD: This defines a physical server for Metal3 to manage. However when using Metal3 with non-baremetal agent, this definition does not make sense. The lifecycle of worker nodes through the virtual infrastructure provider (e.g., vSphere). 
+
+For both:
+Enable Central Infrastructure Management: This remains important for generating the necessary ISO. 
+Generate the ISO: The process will be similar, but without the bare metal-specific configurations. 
+Manual ISO Mounting: You'll download the ISO from your cluster and use vSphere's tools to mount it to your worker node VMs during their creation.
+
+With non-baremetal agent, you are leveraging the existing virtualization infrastructure instead of relying on baremetal provisioning tools. 
+OpenShift Virtualization
+Can I deploy clusters using ACM with hosted control planes and VM workers from another OCP cluster?
+Yes, this should be possible via external infrastructure mode via the CLI only.
+How does KubeVirt CSI work?
+When the user creates a filesystem PVC in the tenant cluster, the kubevirt csi driver, sees that and creates a matching PVC in the infra cluster. Which storage class is used is based on the config map you have been looking at. For this lets assume the mapping happens to the odf ceph rbd storage class in the infra cluster. The optimal combination in the infra cluster is RWX block volumes. So the kubevirt csi driver will actually create an RWX block in the infra cluster. Then csi provisioner side car creates a PV in the tenant cluster, and the PVC and PV are bound. At this point no pods in the tenant cluster are using PVC. Then the user creates a pod in the tenant cluster that uses the filesystem PVC. This pod is then scheduled on one of the nodes in the tenant cluster. At this point the kubevirt csi driver will hotplug the volume into the VM that is the node. The code will then see oh this is a filesystem volume, and it will create a filesystem on the block volume (either ext4 or xfs, depending on the definition of the storage class). It is then mounted in the container and everything works as expected. ~ Alexander Wels
+
+How does KubeVirt-CSI ensure Isolation? 
+Answer by David Vossel
+
+While KubeVirt CSI is extending storage capabilities of the underlying infrastructure cluster to guest HCP clusters, the csi driver is doing so in a controlled way. This ensures each guest cluster's storage is both isolated from other guest clusters, and that the guest cluster can't access arbitrary storage volumes on the infrastructure cluster that are not associated with the guest cluster.
+
+This isolation is achieved through a depth of security enforcements: 
+
+Direct API access to the infrastructure cluster is never given directly to the HCP guest cluster worker nodes. This means the guest cluster does not have a means to provision storage on the infrastructure cluster except through the controlled KubeVirt CSI interface.
+
+The KubeVirt CSI cluster controller runs in a pod in the HCP namespace, and is not accessible from within the guest cluster. This component ensures PVCs on the infrastructure cluster can only be passed into the guest cluster if those PVCs are associated with the guest cluster.
+
+By default, the RBAC provided to the KubeVirt CSI cluster controller limits PVC access only to the HCP namespace. This prevents the possibility of cross namespace storage access by any KubeVirt CSI component.
+
+These security enforcements ensure safe and isolated multitenant access to shared infrastructure storage classes are possible for multiple HCP KubeVirt guest clusters.
+
+How does network isolation work in an OpenShift hosted cluster when running multiple customers on the same bare-metal cluster?
+It all depends on the configuration. If the VM workers are connected to the management cluster's PodNetwork, isolation is enforced using network policies which we deploy for each cluster namespace. These policies ensure communication is constrained per tenant.
+
+If the worker VM is connected to a secondary network, the responsibility for configuring network isolation falls to the cluster admin.
+
+
+It is supported to expose a NodePort service from the hosted cluster dataplane? 
+Yes, it should work out of the box. Create two k8s services of type nodePort, one in the hosted cluster and one in the management cluster. 
+
+
+
+Why HCP with OpenShift Virtualization is the preferred way to implement OCP on OCP? 
+
+Strategically, HCP represents Red Hat's strategic vision for managing OpenShift at scale (also why we are investing and defaulting to it for our own cloud-services). Development efforts and new features are primarily focused on HCP w/ OCP-V as an implementation for OCP on OCP, ensuring its long-term viability and richer functionality compared to alternative approaches and avoids split-braining and duplicate implementations. 
+HCP simplifies managing multiple OCP clusters through a single pane of glass, integrates well with MCE and ACM to enable multi-cluster deployments. This includes centralized control over cluster deployments, upgrades, and policy enforcement. This is especially valuable for organizations running numerous OCP clusters on OCP virt.
+HCP leverages declarative approaches like Cluster API (CAPI) to manage cluster lifecycles. This allows for automated and reproducible cluster deployments, reducing manual intervention and potential errors, with plans to further integrate with technologies like Karpenter for autoscaling flexibility and adaptation to workload needs.
+HCP architecture allows for greater scalability and efficient resource utilization by bin-packing control plane components. This can reduce the overhead associated with managing multiple independent control planes.
+HCP with OCP-V gives greater flexibility around storage interfaces and abstracts key storage functionalities behind kubevirt-csi
+This OCP on OCP implementation inherits all the benefits of HCP, additionally allows for additional flexibility in the future to implement a try hybrid architecture (e.g., Deploy the control planes the cloud and workers/VMs on on-premise)
+Sizing & Performance
+What is the sizing guidance for HCP? 
+Links and references: 
+HCP Sizer: 
+Demo: Hosted Control Planes Sizer Demo
+Hosted Sizing Guidance on Red Hat documentation
+Red Hat Blog on QPS Rate and Resource Utilization
+Older document on network numbers: Hypershift w/ Kubevirt network performance - 2 layer (2023)
+
+How can a Hosted control planes setup be expected to work performance-wise if a worker is located in the public cloud while control-plane is on-prem?
+
+While technically possible, near-term hosted control planes will only be supporting on-prem control planes with on-prem workers, and cloud-hosted control planes with cloud-hosted workers.
+
+Auth
+How to configure oAuth with HCP?
+
+For hosted clusters, OAuth can only be configured through the HostedCluster API. This means you cannot directly configure IDP on a managed cluster. Additionally, any configmaps referenced from the configuration need to be in the same namespace as the HostedCluster CR.
+
+This is by design, usually in standalone oAuth, node scaling,... prevent the cluster from going out of compliance. This is due to the separation of personas (cluster service provider, and consumer) AND (cluster instance admin, and cluster instance developer).
+Architecture
+What are the Main Components of a Hosted Control-Plane? 
+For simplicity the example below is for an AWS Hosted Cluster: 
+
+
+Function
+Components
+Manage lifecycle of Amazon EBS volumes requested by customer cluster via CSI interface.
+aws-ebs-csi-driver-controller
+aws-ebs-csi-driver-operator
+csi-snapshot-controller
+csi-snapshot-controller-operator
+csi-snapshot-webhook
+Manage lifecycle of Amazon EC2 instances and associated Kubernetes CSR approval flow for customer cluster worker nodes.
+capi-provider
+cluster-api
+cluster-autoscaler
+machine-approver
+Manage initial bootstrap and configuration of the RHEL CoreOS operating system for the customer worker node.
+Ignition-server
+cluster-node-tuning-operator
+Provide core Kubernetes API server control plane functionality for the customer cluster.  The API server cannot initiate network connections outbound to the worker node.
+
+
+etcd
+kube-apiserver
+kube-controller-manager
+kube-scheduler
+konnectivity-server
+konnectivity-agent
+Provide OpenShift distribution specific Kubernetes extensions to the customer control plane.
+
+Provide OpenShift OVN CNI plugin including Multus support.  Reconcile CoreDNS and Ingress configuration for the customer cluster in the customer data plane.
+
+Provide support for the CNCF OperatorFramework project for customer hosted OpenShift clusters.  Catalog contents describe software assets the customer MAY choose to install in their clusters data plane.
+control-plane-operator
+cluster-version-operator
+cluster-storage-operator
+cluster-image-registry-operator
+cluster-policy-controller
+oauth-openshift
+openshift-apiserver
+openshift-controller-manager
+openshift-route-controller-manager
+openshift-oauth-apiserver
+
+cluster-dns-operator
+cluster-network-operator
+cloud-network-config-controller
+hosted-cluster-config-operator
+ingress-operator
+multus-admission-controller
+ovnkube-master
+
+olm-operator
+packageserver
+catalog-operator
+community-operators-catalog
+redhat-marketplace-catalog
+redhat-operators-catalog
+certified-operators-catalog
+
+
+Testing & Debugging
+Can Hosted Control Plane (HCP) be configured to run on a Single Node OpenShift (SNO)?
+Yes, HCP can be configured to run on SNO, primarily for internal testing or debugging purposes. This involves using the hcp (product)  / hypershift (project) commands with specific flags such as --control-plane-availability-policy=SingleReplica to create a hosted cluster suited for an SNO environment. 
+
+For the control-plane-availability-policy, setting it to SingleReplica is key for SNO compatibility, as it adjusts the availability policy of the control plane to suit a single-node setup.
+Hardening & Tenant Isolation
+
+What are the different modes of Isolation?
+
+Parameter
+Shared Everything
+Dedicated Request Serving (WIP)
+Shared Nothing
+Description
+All hosted control plane pods are scheduled to any node that can run hosted control plane workloads.
+Two nodes in different availability domains are dedicated to a specific hosted cluster’s front end serving components. The rest of the hosted cluster’s control plane pods can co-exist with other clusters’ control plane pods running on shared nodes.
+Nodes meant for a specific hosted cluster are tainted (and labeled) with a specific hypershift.openshift.io/hosted-cluster value. No other control plane pods will land on those nodes.
+Recommendation
+Recommended in most settings.
+Depending on specific use cases, might not be suitable for all settings.
+Least efficient bin packing, most expensive mode. Not generally recommended unless necessary for specific contexts.
+Cost Efficiency
+$ (Most cost-efficient)
+$$ (Moderately cost-efficient due to dedicated nodes for request serving components)
+$$$ (Least cost-efficient due to dedicated resources)
+Network Security
+Enforced via Network Policy.
+Network security via Network Policy and (optionally) physical network ACLs across tenant frontends.
+Network security via Network Policy and (optionally) physical network ACLs across tenants.
+Control-Plane Co-existence (Isolation)
+All control planes share the same set of nodes.
+The majority of shared cluster control planes are still bin packed, while only request serving components are hosted on dedicated nodes. 
+No co-existence, each control plane has its own dedicated node.
+How to Configure
+Default mode - no special configuration needed.
+Specific nodes need to be dedicated via configuration to host the front-end components of a specific hosted cluster.
+Nodes for a specific hosted cluster need to be tainted (and labeled) with a specific hypershift.openshift.io/hosted-cluster value.
+
+
+
+Shared Everything
+
+Shared Nothing
+
+Management clusters with dedicated nodes for control-plane pods.
+
+
+Dedicated Request Serving Nodes (WIP)
+Management cluster with nodes dedicated to request serving machines. 
+
+
+
+How is Default Control Plane Isolation Achieved? 
+Network Policy Isolation
+Each customer’s hosted OpenShift control plane is assigned to run in a dedicated Kubernetes namespace. The Kubernetes namespace denies all network traffic by default.
+
+The following network traffic is allowed via NetworkPolicy enforced by our Kubernetes CNI:
+
+Ingress pod-to-pod communication in the same namespace (intra-tenant)
+Ingress on port 6443 to the tenant's hosted kube-apiserver pod.
+Metric scraping from management cluster Kubernetes namespace with label  network.openshift.io/policy-group: monitoring is allowed for monitoring.
+
+Control-planes Pods Isolation
+In addition to network policies, each hosted control-plane pod is run with the restricted security context constraint.  This policy denies access to all host features and requires pods to be run with a UID, and SELinux context that is allocated uniquely to each namespace hosting a customer control plane.  
+
+It ensures the following:
+pods cannot run as privileged
+pods cannot mount host directory volumes
+pods MUST run as a user in a pre-allocated range of UIDs  
+pods MUST run with a pre-allocated MCS label
+pods may not access the host network namespace
+pods may not expose host network ports
+pods may not access the host pid namespace  
+pods have the following Linux capabilities dropped by default
+KILL, MKNOD, SETUID, SETGID.
+
+The management components (kubelet, crio) on each management cluster worker node are protected by an SELinux label that is NOT accessible to the SELinux context for pods that support end-user hosted control planes.
+
+SELinux labels for key processes and sockets:
+kubelet  system_u:system_r:unconfined_service_t:s0
+crio  system_u:system_r:container_runtime_t:s0
+crio.sock system_u:object_r:container_var_run_t:s0 
+<example user container processes> system_u:system_r:container_t:s0:c14,c24
+
+Can the Management Cluster Workers be Shared with “normal” workloads? 
+
+
+The topology of the management cluster, as well as the distribution of the Hosted Control Planes workloads, is critical to achieving high availability/tenant isolation for our Hosted Control Planes.
+
+It is recommended (might be enforced) to have dedicated nodes in the management cluster for running hosted control planes for a given customer/team/etc without sharing the nodes with “normal” user workloads (i.e., non hosted control planes workload).  In order to do that, cluster service providers can leverage the following node labels and taints:
+hypershift.openshift.io/control-plane: true
+hypershift.openshift.io/cluster: <hosted-control-plane-namespace>
+
+The following rules apply:
+Pods for a Hosted Control Plane tolerate taints for control-plane and cluster.
+Pods for a Hosted Control Plane prefer to be scheduled into the same node.
+Pods for a Hosted Control Plane prefer to be scheduled into control-plane nodes.
+Pods for a Hosted Control Plane prefer to be scheduled into their own cluster nodes.
+You can get pods scheduled across different failure domains by changing the ControllerAvailabilityPolicy to HighlyAvailable and setting topology.kubernetes.io/zone as the topology key.
+
+Note: Using workers of the management cluster for non-hcp workload implies also that those workers need to be subscribed.
+Can Hosted Control Planes aid in Multi-tenant Workload Isolation? 
+There are multiple ways to enforce tenant isolation with Kubernetes and OpenShift. This includes but is not limited to 
+
+
+Workload Isolation via Namespaces/Projects 
+Runtime Isolation, examples here include sandboxed runtimes such as OpenShift sandboxed containers w/Kata, or usernamespaces
+Node Isolation, where each tenant workload would get its own node.
+Cluster isolation, using the cluster as the isolation boundary. 
+
+Each of the above tenant isolation mechanisms has their pros and cons, which is out of the scope for this document to enumerate. However, ​cluster isolation as a tenancy boundary is usually the strongest form of isolation, usually needed when its not enough to cater for different API versions within the same cluster, but also due to regulatory/compliance issues. 
+
+While Hosted control planes and HyperShift don’t cause cluster isolation, by reducing the cluster overhead (cost/resources/time-to-provision), it can be used as a foundational block to achieve the strongest level of isolation by using the cluster as a tenant boundary.
+
+Finally, Using a separate construct to host the control-plane as well as act as the management layer for a fleet introduces more personas which makes it easier to segment roles. Going from admin+developer to admin+developer (workloads) + provider/consumer(management).
+
+Early Access Program (EAP) for Self-managed Hosted Control Planes
+If you are reading this, and you have a customer who wishes to onboard on a ready environment with hosted control planes, MCE, and/or ACM. The EAP for self-managed hosted control planes will be relevant. For more information on the program, please visit the program’s source page.
+How do I nominate my customer?
+Go to red.ht/EarlyAccessNomination    
+Choose HostedCP_ACM  from the 'Select the desired Special Program' drop-down, complete the other questions on the nomination form, and submit! This will generate a task for the program team in ServiceNow. 
+A member of our team will be assigned to your customer's task within seven days of the nomination being submitted.
+
+
+
+What’s the Scope for the EAP
+The EAP will help customers who are new to Hosted Control Planes onboard via an existing demo.redhat experience, currently only on AWS, but soon also for Baremetal via the agent provider. 
+
+Miscellaneous
+What is the best practice to run mixed production and non-production HCP clusters on the same hosting cluster?
+Running mixed production and non-production HCP (Hosted Control Plane) clusters on the same hosting cluster is feasible since each control-plane operates as its own project, thus avoiding clashes. However, if the same underlying nodes are used for both clusters, they will be given equal weights, potentially impacting performance. Work is ongoing to explore ways around API fairness and priorities to address this.
+
+Where are the pods for OLM (Operator Lifecycle Manager) created in the context of HCP?
+The pods for the Operator Lifecycle Manager are created on the control planes within the HCP environment (namespace/project).
+
+Is GPU support available in HCP?
+GPU support in HCP is similar to what standalone OpenShift supports. The instance types for workers can accommodate GPU usage.
+
+Additionally, work is ongoing to make sure that the Nvidia GPU operators is running smoothly on top of HCP hosted clusters. The work can be tracked here: *
+
+NVIDIA Operator 
+Support GPU workloads on HCP KubeVirt platform  
+
+Recent testing has shown that the Nvidia GPU operator is compatible with the HyperShift architecture: Hosted Control Planes with GPU worker nodes 
+
+Can different OpenShift versions be supported for hosting clusters in HCP?
+Yes, HCP supports hosting clusters with different OpenShift versions.
+
+Are there restrictions between the version of the hosted cluster and the version of the management cluster?
+Can the version of the hosted cluster be newer than the version of the management cluster? Is any OpenShift version (defined by our life cycle page) supported to be used as a hosted cluster (ex: hosted cluster is 4.14 and the management cluster is 4.18)?
+
+The HyperShift operator is shipped via the multicluster engine operator. To create a cluster on 4.14, a corresponding version of the MCE that has a HyperShift operator (HO)able to provision a 4.14 cluster must exist. For example, MCE 2.4 a HO that allows for provisioning of 4.14 clusters.  If a customer wants to deploy a 4.17/4.18 on a 4.14 management), they would need to upgrade their MCE to a 2.8. or the version of MCE that allows creation of 4.17, that version should be able to run on 4.14.
+
+
+For MCE/ACM lifecycle policy please consult: OpenShift Operator Life Cycles - Red Hat Customer Portal 
+
+What are the network or storage requirements for HCP, such as latency?
+The network latency requirements between the control-plane and the workers is similar to remote workers nodes with OpenShift, i.e., 200ms. 
+
+For sizing guidance check the documentation.
+
+Which CRD should be used in a helm chart for HyperShift, hostedcluster or hostedcontrolplane?
+The hostedcluster and the nodepool CRDs should be used for helm-chart templating or for templating in general. The hostedcontrolplane resource is auto-generated and reconciled by the Hypershift Operator.
+
+Relation to Other Products/Projects
+How does hcp relate to *ks? 
+TLDR: HCP is OpenShift, OpenShift is a Turnkey application platform, *KSes are not. 
+
+HCP is an architecture optimization for OpenShift, i.e., it is still OpenShift. DIY Kubernetes or even the *KSes opinionate at the functional layers of the stack (CNI/CSI/…) but leave the customers with limited support when it comes to deploying and managing applications workloads and their dependencies. 
+
+OpenShift is a turnkey application platform, batteries included support for the functional layers plus layered components. 
+
+Here is a depiction pulled from a recent talk in AWS Re:invent: AWS re:Invent 2023 - Running OpenShift on AWS using Red Hat OpenShift Service on AWS (ROSA) (CON207) 
+
+HCP is used both for self-managed and for our Red Hat managed cloud-services (e.g., ROSA).
+
+ 
+
+How does HyperShift relate to the Heterogeneous architecture's effort? 
+HyperShift does not overlap with the Heterogeneous architecture effort, while HyperShift makes it possible to host the control plane on a different architecture than the workers/data plane, it does exclusively withhold the capability of having multiple node pools of with different architectures. The Heterogeneous architecture efforts make it possible to have node pools with different architectures in the same OpenShift cluster. HyperShift will make use of this feature. 
+
+Ref: heterogeneous-deck-generic
+How does HyperShift relate to the KCP? 
+While KCP was discontinued in Red Hat it is still an active upstream project. 
+
+
+(If you are unfamiliar with KCP check: KCP Pitch Deck) 
+
+HyperShift introduces numerous benefits, including lower total cost of ownership and fast cluster creation time. KCP is an abstraction layer on top that aims at making multi-cluster management easier, regardless of the type of provisioning used to create the clusters. There are infinite possibilities for collaboration between KCP and HyperShift, but here are the top three use-cases: 
+
+KCP makes use of HyperShifted clusters for cost and time-to-provision improvements.
+HyperShift makes use of KCP to virtualize the decoupled control-planes even further, making use of KCP’s abstractions for hosting the control-planes
+KCP acts as a HyperShift management cluster scheduler (where should I host my next cp).
+
+
+We are currently just focusing on the first use-case, i.e., KCP using HyperShift for faster, cost-efficient clusters. 
+
+
+What’s the intersection between Hosted Control Planes / KCP / ACM? 
+While KCP was discontinued in Red Hat it still an active upstream project. 
+
+
+
+
+
+
+
+More information in Hosted Control Planes (aka HyperShift) Strategy [Live Document]. 
+
+
+Additional Resources
+Track with Jira 
+Live Roadmap https://issues.redhat.com/secure/Dashboard.jspa?selectPageId=12347121 
+
+
+Documentation for Hosted Control Planes
+OpenShift Documentation for Hosted Control Planes (Starting Point for Self-managed) 
+ROSA with hosted control planes documentation
+HyperShift Project Documentation (Upstream/Project)
+Internal Enablement (self-managed)
+Hosted Control Planes (HyperShift) Overview (feel free to re-use the unskipped slides from this deck and customize for your customer).
+Hosted Control Planes (HyperShift): Deep Dive - Slide 28 onwards by Ayush Garg
+Agent + Baremetal
+Hypershift team - BareMetal environments ~ Juan Manuel Parrilla Madrid
+HyperShift + Agent
+HyperShift-Assisted First Demo
+Hosted Control Planes - OpenShift Commons Israel 2023 FINAL
+2022 - Everything Hypershift/KubeVirt
+Hosted Control Planes (aka HyperShift) Strategy [Live Document] - NEEDS UPDATE - Start Here (but don’t share outside)
+Source Page for SD HyperShift (Managed Services)
+https://source.redhat.com/groups/public/openshiftplatformsre/wiki/overview_hypershift 
+Perf/Scale 
+On-Prem Hypershift w/ Kubevirt Provider: Scaling and Performance -- PerfConf2023
+HyperShift ETCD Performance Evaluation
+ROSA 4.12 Perf/Scale Report
+80 HC Testing in Stage - April 17
+Labs
+Welcome to the Red Hat Lab - Hosted Control Planes on Baremetal 
+Validated Patterns 
+Using HyperShift | Validated Patterns 
+https://github.com/validatedpatterns-sandbox/hypershift 
+Internal Enablement (Managed)®®
+ROSA:
+UPDATED - Red Hat OpenShift Service on AWS (ROSA) - pitch deck 2024
+(OUTDATED) Red Hat OpenShift Service on AWS (ROSA) - overview presentation.pptx
+Internal enablement
+Internal FAQs
+Upstream & GitHub (Core)
+GitHub - openshift/hypershift: Hyperscale OpenShift - clusters with hosted control planes
+HyperShift Enhancement Repo 
+
+Public references
+Emerging Multi-cluster Patterns: HyperShift and Kubernetes Control Planes Adel Zaalouk Red Hat (Researchy)
+The Cloud Multiplier: Ep. 1 | Hypershift
+Ask an OpenShift Admin (Ep 84) | Hosted Control Planes
+Ask an OpenShift Admin (E106) Next-Level Cluster Provisioning (Agent workflow)
+The developer preview repository for developer preview providers. 
+HostedControlPlanes - Disconnected IPv6 Demo
+Blogs 
+Unlocking new possibilities: The general availability of hosted control planes for self-managed Red Hat OpenShift 
+Hosted Control Planes Is Here as Tech Preview!
+Architecting a Scalable Kubernetes Platform {engineering@intility} (partner blog) 
+HyperShift Install & Deep Dive 
+Bare Metal:
+A Guide to Red Hat Hypershift on Bare Metal
+How to Build Bare Metal Hosted Clusters on Red Hat Advanced Cluster Management for Kubernetes
+Workloads on Bare Metal Hosted Clusters Deployed From Red Hat Advanced Cluster Management for Kubernetes  
+Scaling a NodePool for a Baremetal Cluster 
+Using GitOps to Deploy Bare Metal OpenShift Hosted Control Plane Clusters 
+OpenShift Virtualization/Kubevirt Provider:
+Effortlessly and Efficiently Provision Openshift Clusters with Openshift Virtualization 
+Guest Writings (User Generated)
+https://almogelfassy.medium.com/cluster-as-a-service-the-next-phase-of-development-for-kubernetes-by-hypershift-4f1b8d28ad78 
+Arm
+A Guide to reducing OpenShift Costs with Arm Hosted Control Planes on AWS 
+ROSA
+Red Hat OpenShift Service on AWS with hosted control planes now available 
+Creating ROSA with HCP clusters using the default options 
+Deploying Red Hat OpenShift Service on AWS with Hosted Control Planes
+Accelerate time to value and save costs with Red Hat OpenShift Service on AWS 
+Performance
+Correlating QPS rate with resource utilization in self-managed Red Hat OpenShift with Hosted Control Planes 
+Ingress
+https://developers.redhat.com/articles/2024/12/04/hosted-control-plane-operations 
+Tools
+Sizing
+https://github.com/zanetworker/hcp-sizer (best effort sizing tool to help with automated sizing for HCP). 
+Hosted Control Planes Sizer Demo 
+
+Overview Videos
+Technical deep dive: OpenShift on top of OpenShift - 2025/01/30 12:51 CET - Recording
+HyperShift Overview from a Cisco TRF (2022) (pass:8Weth6rZ)  
+Where to reach for more questions?
+Like Slack? 
+#project-hypershift (for overall queries about HyperShift project/product. Also the preferred medium for sharing knowledge with the broader audience, also faster replies)
+#sd-hypershift (for managed services based on HyperShift)
+
+Use our mailing list: hypershift-team@redhat.com 
+Hosted Control Planes Office hours - meeting notes
+Quick Demos
+AWS
+
+
+
+ACM + KubeVirt
+HCP Kubevirt - WebUI deployment 
+ACM Development & Customer Playback (2024-02-13 09:02 GMT-5) 
+
+
+Agent / Baremetal
+https://videos.learning.redhat.com/channel/Hypershift/275052272 
+Agent + Connected 
+
+
+
+
+
+Call for Reference Architectures (CFRA)
+Working or planning to work on a reference architecture, a PoC, or a best practice architecture for HCP. Shared and get feedback at: Hosted Control Planes SME Architectural Best Practices [Internal]. 
+
+Simply add your doc, and tag other folks to review (feel free to tag me Adel Zaalouk 🙂).
+

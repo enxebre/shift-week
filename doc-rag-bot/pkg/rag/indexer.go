@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 )
 
@@ -111,27 +112,102 @@ func (i *Indexer) chunkDocument(doc *Document) []Chunk {
 	content := doc.Content
 	var chunks []Chunk
 
-	// Simple chunking by character count
-	for start := 0; start < len(content); start += i.chunkSize - i.chunkOverlap {
-		end := start + i.chunkSize
-		if end > len(content) {
-			end = len(content)
+	// Split by paragraphs first
+	paragraphs := strings.Split(content, "\n\n")
+
+	var currentChunk strings.Builder
+	chunkCount := 0
+
+	for _, para := range paragraphs {
+		// Skip empty paragraphs
+		if strings.TrimSpace(para) == "" {
+			continue
 		}
 
-		chunkID := fmt.Sprintf("%s_chunk_%d", doc.ID, len(chunks))
-		chunk := Chunk{
-			ID:      chunkID,
-			Content: content[start:end],
-			DocID:   doc.ID,
+		// If adding this paragraph would exceed the chunk size,
+		// save the current chunk and start a new one
+		if currentChunk.Len() > 0 && currentChunk.Len()+len(para) > i.chunkSize {
+			chunkID := fmt.Sprintf("%s_chunk_%d", doc.ID, chunkCount)
+			chunk := Chunk{
+				ID:      chunkID,
+				Content: currentChunk.String(),
+				DocID:   doc.ID,
+			}
+			chunks = append(chunks, chunk)
+			chunkCount++
+			currentChunk.Reset()
 		}
-		chunks = append(chunks, chunk)
 
-		if end == len(content) {
-			break
+		// Add paragraph to current chunk
+		if currentChunk.Len() > 0 {
+			currentChunk.WriteString("\n\n")
+		}
+		currentChunk.WriteString(para)
+
+		// If this paragraph alone is bigger than the chunk size,
+		// we need to split it further
+		if currentChunk.Len() > i.chunkSize {
+			// Split by sentences
+			sentences := splitIntoSentences(currentChunk.String())
+			currentChunk.Reset()
+
+			var sentenceChunk strings.Builder
+			for _, sentence := range sentences {
+				if sentenceChunk.Len()+len(sentence) > i.chunkSize {
+					if sentenceChunk.Len() > 0 {
+						chunkID := fmt.Sprintf("%s_chunk_%d", doc.ID, chunkCount)
+						chunk := Chunk{
+							ID:      chunkID,
+							Content: sentenceChunk.String(),
+							DocID:   doc.ID,
+						}
+						chunks = append(chunks, chunk)
+						chunkCount++
+						sentenceChunk.Reset()
+					}
+				}
+
+				if sentenceChunk.Len() > 0 {
+					sentenceChunk.WriteString(" ")
+				}
+				sentenceChunk.WriteString(sentence)
+			}
+
+			if sentenceChunk.Len() > 0 {
+				currentChunk.WriteString(sentenceChunk.String())
+			}
 		}
 	}
 
+	// Don't forget the last chunk
+	if currentChunk.Len() > 0 {
+		chunkID := fmt.Sprintf("%s_chunk_%d", doc.ID, chunkCount)
+		chunk := Chunk{
+			ID:      chunkID,
+			Content: currentChunk.String(),
+			DocID:   doc.ID,
+		}
+		chunks = append(chunks, chunk)
+	}
+
 	return chunks
+}
+
+// Helper function to split text into sentences
+func splitIntoSentences(text string) []string {
+	// Simple sentence splitting by common sentence terminators
+	// This is a basic implementation - could be improved with NLP libraries
+	re := regexp.MustCompile(`[.!?]\s+`)
+	sentences := re.Split(text, -1)
+
+	var result []string
+	for _, s := range sentences {
+		s = strings.TrimSpace(s)
+		if s != "" {
+			result = append(result, s)
+		}
+	}
+	return result
 }
 
 // GetAllChunks returns all indexed chunks

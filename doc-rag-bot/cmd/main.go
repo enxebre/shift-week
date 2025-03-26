@@ -81,7 +81,7 @@ func main() {
 
 		// Retrieve relevant document chunks
 		fmt.Println("Retrieving relevant information...")
-		chunks, err := retriever.RetrieveRelevantChunks(query, 5) // Get top 5 relevant chunks
+		chunks, err := retriever.RetrieveRelevantChunks(query, 7) // Get top 5 relevant chunks
 		if err != nil {
 			fmt.Printf("Error retrieving information: %v\n", err)
 			continue
@@ -95,8 +95,24 @@ func main() {
 			continue
 		}
 
+		// Add suggestion about creating domain-specific content
+		enhancedResponse := response + "\n\n---\n" +
+			"💡 **Tip**: For better results, add domain-specific knowledge by creating a text file:\n" +
+			"```bash\n" +
+			"cat > docs/domain-guide.txt << 'EOF'\n" +
+			"# Comprehensive Guide to [Your Domain]\n\n" +
+			"## Key Concepts\n" +
+			"[Add detailed explanations of key concepts here]\n\n" +
+			"## Common Issues and Solutions\n" +
+			"[Document common problems and their solutions]\n\n" +
+			"## Troubleshooting Steps\n" +
+			"[Include step-by-step troubleshooting procedures]\n" +
+			"EOF\n" +
+			"```\n" +
+			"Then run `make run` to index the new content."
+
 		fmt.Println("\n=== Response ===")
-		fmt.Println(response)
+		fmt.Println(enhancedResponse)
 		fmt.Println("================")
 	}
 

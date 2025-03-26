@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
+	"unicode"
 )
 
 // EmbeddingAPI handles interactions with the embedding model
@@ -35,11 +37,33 @@ func NewEmbeddingAPI(baseURL, model string) *EmbeddingAPI {
 	}
 }
 
-// GetEmbedding generates an embedding for the given text
+// Add this function to preprocess text before embedding
+func preprocessText(text string) string {
+	// Convert to lowercase for better matching
+	text = strings.ToLower(text)
+
+	// Remove excessive whitespace
+	text = strings.Join(strings.Fields(text), " ")
+
+	// Remove special characters that might not be relevant for semantic meaning
+	text = strings.Map(func(r rune) rune {
+		if unicode.IsLetter(r) || unicode.IsNumber(r) || unicode.IsSpace(r) || r == '.' || r == ',' || r == ':' || r == '-' {
+			return r
+		}
+		return ' '
+	}, text)
+
+	return text
+}
+
+// Update GetEmbedding to use preprocessing
 func (e *EmbeddingAPI) GetEmbedding(text string) ([]float32, error) {
+	// Preprocess the text
+	processedText := preprocessText(text)
+
 	reqBody := EmbeddingRequest{
 		Model:  e.model,
-		Prompt: text,
+		Prompt: processedText,
 	}
 
 	reqJSON, err := json.Marshal(reqBody)

@@ -124,6 +124,7 @@ func (p *LogParser) ParseLogs() (*ControllerState, error) {
 			} else if strings.Contains(logEntry.Message, "ERROR") ||
 				strings.Contains(logEntry.Message, "error") ||
 				strings.Contains(logEntry.Message, "fail") ||
+				strings.Contains(logEntry.Level, "error") ||
 				strings.Contains(logEntry.Message, "Fail") {
 				eventType = "RECONCILE-ERROR"
 			}

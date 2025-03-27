@@ -14,14 +14,20 @@ type ControllerEvent struct {
 
 // ReconcileStep represents a step in the reconciliation process
 type ReconcileStep struct {
-	ID          string `json:"id"`
-	EventID     string `json:"eventId"`
-	StepType    string `json:"stepType"`
-	Description string `json:"description"`
-	Timestamp   int64  `json:"timestamp"`
-	Duration    int64  `json:"duration"` // in milliseconds
-	Status      string `json:"status"`   // started, completed, failed
-	ReconcileID string `json:"reconcileId"`
+	ID            string `json:"id"`
+	EventID       string `json:"eventId"`
+	StepType      string `json:"stepType"`
+	Description   string `json:"description"`
+	Timestamp     int64  `json:"timestamp"`
+	Duration      int64  `json:"duration"` // in milliseconds
+	Status        string `json:"status"`   // started, completed, failed
+	ReconcileID   string `json:"reconcileId"`
+	Controller    string `json:"controller,omitempty"`
+	ControllerGrp string `json:"controllerGroup,omitempty"`
+	ControllerKnd string `json:"controllerKind,omitempty"`
+	Namespace     string `json:"namespace,omitempty"`
+	Name          string `json:"name,omitempty"`
+	RawLogLine    string `json:"_original,omitempty"` // The original log line
 }
 
 // ReconcileStat represents statistics about a specific reconciliation process

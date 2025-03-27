@@ -93,6 +93,7 @@ func (p *LogParser) ParseLogs() (*ControllerState, error) {
 					}
 				}
 			}
+			fmt.Printf("LOG %+v\n", logEntry)
 
 			// Skip entries without reconcileID
 			if reconcileID == "" {
@@ -144,14 +145,20 @@ func (p *LogParser) ParseLogs() (*ControllerState, error) {
 
 			// Create step for each log entry
 			step := ReconcileStep{
-				ID:          fmt.Sprintf("%s-%d", eventID, lineNum),
-				EventID:     eventID,
-				StepType:    eventType,
-				Description: logEntry.Message,
-				Timestamp:   timestamp.UnixNano() / int64(time.Millisecond),
-				Duration:    0,
-				Status:      strings.ToLower(eventType),
-				ReconcileID: reconcileID,
+				ID:            fmt.Sprintf("%s-%d", eventID, lineNum),
+				EventID:       eventID,
+				StepType:      eventType,
+				Description:   logEntry.Message,
+				Timestamp:     timestamp.UnixNano() / int64(time.Millisecond),
+				Duration:      0,
+				Status:        strings.ToLower(eventType),
+				ReconcileID:   reconcileID,
+				Controller:    logEntry.Controller,
+				ControllerGrp: logEntry.ControllerGrp,
+				ControllerKnd: logEntry.ControllerKnd,
+				Namespace:     logEntry.Namespace,
+				Name:          logEntry.Resource,
+				RawLogLine:    line,
 			}
 
 			p.steps[eventID] = append(p.steps[eventID], step)
@@ -160,67 +167,67 @@ func (p *LogParser) ParseLogs() (*ControllerState, error) {
 			continue
 		}
 
-		// Fallback to regex-based parsing (original code)
-		// Try to match event pattern
-		if matches := p.eventRegex.FindStringSubmatch(line); matches != nil {
-			timestamp, _ := time.Parse(time.RFC3339, matches[1])
-			eventType := matches[2]
-			key := matches[3]
-			namespace := matches[4]
-			name := matches[5]
+		// // Fallback to regex-based parsing (original code)
+		// // Try to match event pattern
+		// if matches := p.eventRegex.FindStringSubmatch(line); matches != nil {
+		// 	timestamp, _ := time.Parse(time.RFC3339, matches[1])
+		// 	eventType := matches[2]
+		// 	key := matches[3]
+		// 	namespace := matches[4]
+		// 	name := matches[5]
 
-			eventID := fmt.Sprintf("%s-%s-%s", eventType, namespace, name)
+		// 	eventID := fmt.Sprintf("%s-%s-%s", eventType, namespace, name)
 
-			event := ControllerEvent{
-				ID:        eventID,
-				Type:      eventType,
-				Key:       key,
-				Namespace: namespace,
-				Name:      name,
-				Timestamp: timestamp.UnixNano() / int64(time.Millisecond),
-				Status:    "queued",
-			}
+		// 	event := ControllerEvent{
+		// 		ID:        eventID,
+		// 		Type:      eventType,
+		// 		Key:       key,
+		// 		Namespace: namespace,
+		// 		Name:      name,
+		// 		Timestamp: timestamp.UnixNano() / int64(time.Millisecond),
+		// 		Status:    "queued",
+		// 	}
 
-			p.events[eventID] = event
-			events = append(events, event)
-		}
+		// 	p.events[eventID] = event
+		// 	events = append(events, event)
+		// }
 
-		// Try to match reconcile pattern
-		if matches := p.reconcileRegex.FindStringSubmatch(line); matches != nil {
-			timestamp, _ := time.Parse(time.RFC3339, matches[1])
-			stepType := matches[2]
-			namespace := matches[4]
-			name := matches[5]
+		// // Try to match reconcile pattern
+		// if matches := p.reconcileRegex.FindStringSubmatch(line); matches != nil {
+		// 	timestamp, _ := time.Parse(time.RFC3339, matches[1])
+		// 	stepType := matches[2]
+		// 	namespace := matches[4]
+		// 	name := matches[5]
 
-			eventID := fmt.Sprintf("%s-%s-%s", "RECONCILE", namespace, name)
-			stepID := fmt.Sprintf("%s-%d", eventID, lineNum)
+		// 	eventID := fmt.Sprintf("%s-%s-%s", "RECONCILE", namespace, name)
+		// 	stepID := fmt.Sprintf("%s-%d", eventID, lineNum)
 
-			step := ReconcileStep{
-				ID:          stepID,
-				EventID:     eventID,
-				StepType:    stepType,
-				Description: fmt.Sprintf("Reconciling %s/%s", namespace, name),
-				Timestamp:   timestamp.UnixNano() / int64(time.Millisecond),
-				Duration:    0, // Would need to calculate from subsequent logs
-				Status:      strings.ToLower(stepType),
-			}
+		// 	step := ReconcileStep{
+		// 		ID:          stepID,
+		// 		EventID:     eventID,
+		// 		StepType:    stepType,
+		// 		Description: fmt.Sprintf("Reconciling %s/%s", namespace, name),
+		// 		Timestamp:   timestamp.UnixNano() / int64(time.Millisecond),
+		// 		Duration:    0, // Would need to calculate from subsequent logs
+		// 		Status:      strings.ToLower(stepType),
+		// 	}
 
-			p.steps[eventID] = append(p.steps[eventID], step)
-			steps = append(steps, step)
+		// 	p.steps[eventID] = append(p.steps[eventID], step)
+		// 	steps = append(steps, step)
 
-			// Update event status based on reconcile step
-			if event, ok := p.events[eventID]; ok {
-				switch stepType {
-				case "START":
-					event.Status = "processing"
-				case "COMPLETE":
-					event.Status = "completed"
-				case "ERROR":
-					event.Status = "failed"
-				}
-				p.events[eventID] = event
-			}
-		}
+		// 	// Update event status based on reconcile step
+		// 	if event, ok := p.events[eventID]; ok {
+		// 		switch stepType {
+		// 		case "START":
+		// 			event.Status = "processing"
+		// 		case "COMPLETE":
+		// 			event.Status = "completed"
+		// 		case "ERROR":
+		// 			event.Status = "failed"
+		// 		}
+		// 		p.events[eventID] = event
+		// 	}
+		// }
 	}
 
 	if err := scanner.Err(); err != nil {

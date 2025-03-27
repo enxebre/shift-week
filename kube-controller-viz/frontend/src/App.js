@@ -74,16 +74,8 @@ function App() {
           <div className="stats-panel">
             <h3>Controller Stats</h3>
             <div className="stats-item">
-              <span>Queue Length:</span>
-              <span>{controllerState.queueLength}</span>
-            </div>
-            <div className="stats-item">
               <span>Processing Rate:</span>
               <span>{controllerState.processingRate.toFixed(2)} events/sec</span>
-            </div>
-            <div className="stats-item">
-              <span>Events:</span>
-              <span>{controllerState.events.length}</span>
             </div>
             <div className="stats-item">
               <span>Reconcile Steps:</span>

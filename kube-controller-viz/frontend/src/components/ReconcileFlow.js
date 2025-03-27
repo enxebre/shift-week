@@ -25,6 +25,7 @@ class ReconcileFlow {
     this.stepTooltips = new Map(); // Track tooltips for steps
     this.currentStepIndices = new Map(); // Track the current step index for each reconcileId
     this.stepsByReconcileId = new Map(); // Group steps by reconcileId
+    this.stepsByResource = new Map(); // Group steps by resource (namespace/name)
     
     // Store clock for animations
     this.clock = new THREE.Clock();
@@ -47,7 +48,147 @@ class ReconcileFlow {
     this.activePipelineColor = 0x00ffff; // Cyan color for active pipeline
     this.defaultPipelineColor = 0x4287f5; // Default blue color
     
+    // Grouping mode - can be either "reconcileId" or "resource"
+    this.groupingMode = "reconcileId";
+    
     console.log("ReconcileFlow initialized with all collections");
+  }
+  
+  // Set the grouping mode for pipeline visualization
+  setGroupingMode(mode) {
+    if (mode !== "reconcileId" && mode !== "resource") {
+      console.warn(`Invalid grouping mode: ${mode}, defaulting to "reconcileId"`);
+      mode = "reconcileId";
+    }
+    
+    if (this.groupingMode !== mode) {
+      console.log(`Changing grouping mode from ${this.groupingMode} to ${mode}`);
+      this.groupingMode = mode;
+      
+      // Clear existing pipelines and their visualizations
+      this.clearAllPipelines();
+      
+      // Re-process steps with the new grouping mode
+      if (this.steps && this.steps.length > 0) {
+        this.updateSteps(this.steps);
+      }
+      
+      // Reset active pipeline
+      this.activePipelineId = null;
+    }
+  }
+  
+  // Clear all existing pipeline visualizations
+  clearAllPipelines() {
+    console.log("Clearing all existing pipelines");
+    
+    // Remove all tubes and markers from the scene
+    this.tubes.forEach(tube => {
+      if (this.scene && tube) {
+        this.scene.remove(tube);
+      }
+    });
+    
+    this.balls.forEach(ball => {
+      if (this.scene && ball) {
+        this.scene.remove(ball);
+      }
+    });
+    
+    this.stepMarkers.forEach(markers => {
+      if (markers && Array.isArray(markers)) {
+        markers.forEach(marker => {
+          if (this.scene && marker) {
+            this.scene.remove(marker);
+          }
+        });
+      }
+    });
+    
+    // Clear all tracking maps
+    this.pipelineObjects.clear();
+    this.pipelines.clear();
+    this.tubes.clear();
+    this.curves.clear();
+    this.balls.clear();
+    this.ballPositions.clear();
+    this.targetPositions.clear();
+    this.stepMarkers.clear();
+    this.stepPositions.clear();
+    this.currentStepIndices.clear();
+    
+    // Reset current step
+    this.currentStep = null;
+  }
+  
+  // Group steps by reconcileId
+  getStepsByReconcileId() {
+    const stepsByReconcileId = new Map();
+    
+    this.steps.forEach(step => {
+      const reconcileId = step.reconcileId || step.reconcileID;
+      if (!reconcileId) return;
+      
+      if (!stepsByReconcileId.has(reconcileId)) {
+        stepsByReconcileId.set(reconcileId, []);
+      }
+      stepsByReconcileId.get(reconcileId).push(step);
+    });
+    
+    // Sort steps by timestamp
+    for (const [reconcileId, reconcileSteps] of stepsByReconcileId.entries()) {
+      reconcileSteps.sort((a, b) => {
+        const aTime = a.timestamp || a.ts || 0;
+        const bTime = b.timestamp || b.ts || 0;
+        const aTimeValue = typeof aTime === 'object' ? aTime.getTime() : new Date(aTime).getTime();
+        const bTimeValue = typeof bTime === 'object' ? bTime.getTime() : new Date(bTime).getTime();
+        return aTimeValue - bTimeValue;
+      });
+    }
+    
+    return stepsByReconcileId;
+  }
+  
+  // Group steps by resource (namespace/name)
+  getStepsByResource() {
+    const stepsByResource = new Map();
+    
+    this.steps.forEach(step => {
+      const namespace = step.namespace || '';
+      const name = step.name || '';
+      
+      // Skip steps without namespace or name
+      if (!namespace || !name) return;
+      
+      const resourceKey = `${namespace}/${name}`;
+      
+      if (!stepsByResource.has(resourceKey)) {
+        stepsByResource.set(resourceKey, []);
+      }
+      stepsByResource.get(resourceKey).push(step);
+    });
+    
+    // Sort steps by timestamp
+    for (const [resourceKey, resourceSteps] of stepsByResource.entries()) {
+      resourceSteps.sort((a, b) => {
+        const aTime = a.timestamp || a.ts || 0;
+        const bTime = b.timestamp || b.ts || 0;
+        const aTimeValue = typeof aTime === 'object' ? aTime.getTime() : new Date(aTime).getTime();
+        const bTimeValue = typeof bTime === 'object' ? bTime.getTime() : new Date(bTime).getTime();
+        return aTimeValue - bTimeValue;
+      });
+    }
+    
+    return stepsByResource;
+  }
+  
+  // Get steps grouped according to current grouping mode
+  getGroupedSteps() {
+    if (this.groupingMode === "resource") {
+      return this.getStepsByResource();
+    } else {
+      return this.getStepsByReconcileId();
+    }
   }
   
   // Initialize manual navigation mode
@@ -95,7 +236,7 @@ class ReconcileFlow {
     // Make sure the active pipeline is properly set up
     if (this.activePipelineId) {
       const activePipelineId = this.activePipelineId;
-      const stepsMap = this.getStepsByReconcileId();
+      const stepsMap = this.getGroupedSteps();
       
       if (stepsMap.has(activePipelineId)) {
         const steps = stepsMap.get(activePipelineId);
@@ -135,34 +276,6 @@ class ReconcileFlow {
     console.log("--- initializeManualNavigation completed ---\n");
   }
   
-  // Group steps by reconcileId
-  getStepsByReconcileId() {
-    const stepsByReconcileId = new Map();
-    
-    this.steps.forEach(step => {
-      const reconcileId = step.reconcileId || step.reconcileID;
-      if (!reconcileId) return;
-      
-      if (!stepsByReconcileId.has(reconcileId)) {
-        stepsByReconcileId.set(reconcileId, []);
-      }
-      stepsByReconcileId.get(reconcileId).push(step);
-    });
-    
-    // Sort steps by timestamp
-    for (const [reconcileId, reconcileSteps] of stepsByReconcileId.entries()) {
-      reconcileSteps.sort((a, b) => {
-        const aTime = a.timestamp || a.ts || 0;
-        const bTime = b.timestamp || b.ts || 0;
-        const aTimeValue = typeof aTime === 'object' ? aTime.getTime() : new Date(aTime).getTime();
-        const bTimeValue = typeof bTime === 'object' ? bTime.getTime() : new Date(bTime).getTime();
-        return aTimeValue - bTimeValue;
-      });
-    }
-    
-    return stepsByReconcileId;
-  }
-  
   // Method to move to next step in manual mode
   moveToNextStep() {
     console.log("\n--- moveToNextStep called ---");
@@ -184,36 +297,36 @@ class ReconcileFlow {
     
     // Get active pipeline ID or select first one if none active
     let activePipelineId = this.activePipelineId;
-    if (!activePipelineId || !this.pipelineObjects.has(activePipelineId)) {
+    if (!activePipelineId) {
       activePipelineId = pipelineIds[0];
-      console.log(`No active pipeline - selecting first available: ${activePipelineId}`);
       this.setActivePipeline(activePipelineId);
-      return; // Return after selection to allow user to see the selection before navigating
+      console.log(`No active pipeline - auto-selecting first one: ${activePipelineId}`);
     }
     
-    console.log(`Moving to next step in pipeline: ${activePipelineId}`);
+    console.log(`Active pipeline ID: ${activePipelineId}`);
     
-    // Get all steps maps
-    const stepsMap = this.getStepsByReconcileId();
+    // Get steps for the active pipeline based on grouping mode
+    const stepsMap = this.getGroupedSteps();
     
-    // Get steps for the active pipeline
     if (!stepsMap.has(activePipelineId)) {
-      console.log(`No steps found for pipeline ${activePipelineId}`);
-      console.log(`Available step data for: ${Array.from(stepsMap.keys()).join(', ') || "none"}`);
+      console.log(`No steps found for active pipeline ${activePipelineId}`);
+      console.log(`Steps available for: ${Array.from(stepsMap.keys()).join(', ') || "none"}`);
       return;
     }
     
     const steps = stepsMap.get(activePipelineId);
-    if (!steps || steps.length === 0) {
-      console.log(`Empty steps array for pipeline ${activePipelineId}`);
+    const totalSteps = steps.length;
+    
+    console.log(`Total steps: ${totalSteps}`);
+    
+    if (totalSteps === 0) {
+      console.log(`No steps available for pipeline ${activePipelineId}`);
       return;
     }
     
-    const totalSteps = steps.length;
-    console.log(`Pipeline has ${totalSteps} steps`);
-    
-    // Get current step index
+    // Get current step index (default to 0 if not set)
     let currentIndex = this.currentStepIndices.get(activePipelineId);
+    
     if (currentIndex === undefined) {
       currentIndex = 0;
       this.currentStepIndices.set(activePipelineId, currentIndex);
@@ -262,7 +375,7 @@ class ReconcileFlow {
     console.log("--- moveToNextStep completed ---\n");
   }
   
-  // Method to move to the previous step in manual mode
+  // Method to move to previous step in manual mode
   moveToPreviousStep() {
     console.log("\n--- moveToPreviousStep called ---");
     
@@ -283,36 +396,36 @@ class ReconcileFlow {
     
     // Get active pipeline ID or select first one if none active
     let activePipelineId = this.activePipelineId;
-    if (!activePipelineId || !this.pipelineObjects.has(activePipelineId)) {
+    if (!activePipelineId) {
       activePipelineId = pipelineIds[0];
-      console.log(`No active pipeline - selecting first available: ${activePipelineId}`);
       this.setActivePipeline(activePipelineId);
-      return; // Return after selection to allow user to see the selection before navigating
+      console.log(`No active pipeline - auto-selecting first one: ${activePipelineId}`);
     }
     
-    console.log(`Moving to previous step in pipeline: ${activePipelineId}`);
+    console.log(`Active pipeline ID: ${activePipelineId}`);
     
-    // Get all steps maps
-    const stepsMap = this.getStepsByReconcileId();
+    // Get steps for the active pipeline based on grouping mode
+    const stepsMap = this.getGroupedSteps();
     
-    // Get steps for the active pipeline
     if (!stepsMap.has(activePipelineId)) {
-      console.log(`No steps found for pipeline ${activePipelineId}`);
-      console.log(`Available step data for: ${Array.from(stepsMap.keys()).join(', ') || "none"}`);
+      console.log(`No steps found for active pipeline ${activePipelineId}`);
+      console.log(`Steps available for: ${Array.from(stepsMap.keys()).join(', ') || "none"}`);
       return;
     }
     
     const steps = stepsMap.get(activePipelineId);
-    if (!steps || steps.length === 0) {
-      console.log(`Empty steps array for pipeline ${activePipelineId}`);
+    const totalSteps = steps.length;
+    
+    console.log(`Total steps: ${totalSteps}`);
+    
+    if (totalSteps === 0) {
+      console.log(`No steps available for pipeline ${activePipelineId}`);
       return;
     }
     
-    const totalSteps = steps.length;
-    console.log(`Pipeline has ${totalSteps} steps`);
-    
-    // Get current step index
+    // Get current step index (default to 0 if not set)
     let currentIndex = this.currentStepIndices.get(activePipelineId);
+    
     if (currentIndex === undefined) {
       currentIndex = 0;
       this.currentStepIndices.set(activePipelineId, currentIndex);
@@ -554,72 +667,71 @@ class ReconcileFlow {
     if (!this.balls) this.balls = new Map();
     if (!this.pipelineObjects) this.pipelineObjects = new Map();
     if (!this.stepsByReconcileId) this.stepsByReconcileId = new Map();
+    if (!this.stepsByResource) this.stepsByResource = new Map();
     if (!this.stepMarkers) this.stepMarkers = new Map();
     if (!this.stepPositions) this.stepPositions = new Map();
     
-    // Group steps by reconcileId
-    const stepsByReconcileId = new Map();
-    for (const step of steps) {
-      const reconcileId = step.reconcileId || step.reconcileID;
-      if (!reconcileId) continue;
-      
-      if (!stepsByReconcileId.has(reconcileId)) {
-        stepsByReconcileId.set(reconcileId, []);
-      }
-      stepsByReconcileId.get(reconcileId).push(step);
+    // Group steps based on current grouping mode
+    let groupedSteps;
+    if (this.groupingMode === "resource") {
+      groupedSteps = this.getStepsByResource();
+      this.stepsByResource = groupedSteps;
+    } else {
+      groupedSteps = this.getStepsByReconcileId();
+      this.stepsByReconcileId = groupedSteps;
     }
     
-    console.log(`Grouped into ${stepsByReconcileId.size} pipelines`);
+    console.log(`Grouped into ${groupedSteps.size} pipelines using ${this.groupingMode} mode`);
     
-    // Process each reconcileId group
+    // Process each group
     let offsetX = -15;
     let offsetY = 5;
     
-    // Loop through each group of steps with the same reconcileId
-    for (const [reconcileId, stepsForId] of stepsByReconcileId.entries()) {
-      // Check if we have a pipeline object already for this reconcileId
+    // Loop through each group of steps
+    for (const [groupKey, stepsForGroup] of groupedSteps.entries()) {
+      // Check if we have a pipeline object already for this group key
       const hasPipelineObject = 
-        (this.pipelineObjects && this.pipelineObjects.has(reconcileId)) ||
-        (this.tubes && this.tubes.has(reconcileId)) ||
-        (this.curves && this.curves.has(reconcileId)) ||
-        (this.pipelines && this.pipelines.has(reconcileId));
+        (this.pipelineObjects && this.pipelineObjects.has(groupKey)) ||
+        (this.tubes && this.tubes.has(groupKey)) ||
+        (this.curves && this.curves.has(groupKey)) ||
+        (this.pipelines && this.pipelines.has(groupKey));
         
       if (hasPipelineObject) {
-        console.log(`Pipeline ${reconcileId.substring(0, 8)}... already exists, ensuring visibility`);
+        console.log(`Pipeline ${groupKey.substring(0, 20)}... already exists, ensuring visibility`);
         
         // Ensure tube is visible
-        if (this.tubes && this.tubes.has(reconcileId)) {
-          const tube = this.tubes.get(reconcileId);
+        if (this.tubes && this.tubes.has(groupKey)) {
+          const tube = this.tubes.get(groupKey);
           if (tube && !tube.visible) {
-            console.log(`Making tube visible for existing pipeline: ${reconcileId.substring(0, 8)}...`);
+            console.log(`Making tube visible for existing pipeline: ${groupKey.substring(0, 20)}...`);
             tube.visible = true;
           }
         }
         
         // Ensure we have a curve for this pipeline
         let curve;
-        if (this.curves && this.curves.has(reconcileId)) {
-          curve = this.curves.get(reconcileId);
-        } else if (this.pipelines && this.pipelines.has(reconcileId)) {
-          curve = this.pipelines.get(reconcileId);
-        } else if (this.pipelineObjects && this.pipelineObjects.has(reconcileId)) {
-          curve = this.pipelineObjects.get(reconcileId).curve;
+        if (this.curves && this.curves.has(groupKey)) {
+          curve = this.curves.get(groupKey);
+        } else if (this.pipelines && this.pipelines.has(groupKey)) {
+          curve = this.pipelines.get(groupKey);
+        } else if (this.pipelineObjects && this.pipelineObjects.has(groupKey)) {
+          curve = this.pipelineObjects.get(groupKey).curve;
         }
         
         // Update the step markers using the existing curve
         if (curve) {
-          this.createStepMarkers(stepsForId, reconcileId, curve);
+          this.createStepMarkers(stepsForGroup, groupKey, curve);
         } else {
-          console.warn(`No curve found for existing pipeline ${reconcileId.substring(0, 8)}...`);
+          console.warn(`No curve found for existing pipeline ${groupKey.substring(0, 20)}...`);
         }
         
         continue;
       }
       
-      console.log(`Creating new pipeline for ${reconcileId.substring(0, 8)}... with ${stepsForId.length} steps`);
+      console.log(`Creating new pipeline for ${groupKey.substring(0, 20)}... with ${stepsForGroup.length} steps`);
       
       // Sort steps by timestamp to ensure they're in chronological order
-      stepsForId.sort((a, b) => {
+      stepsForGroup.sort((a, b) => {
         const aTime = a.timestamp || a.ts || 0;
         const bTime = b.timestamp || b.ts || 0;
         const aTimeValue = typeof aTime === 'object' ? aTime.getTime() : new Date(aTime).getTime();
@@ -627,15 +739,15 @@ class ReconcileFlow {
         return aTimeValue - bTimeValue;
       });
       
-      // Create new flow path for this reconcileId
-      const pathObjects = this.createFlowPath(offsetX, offsetY, reconcileId);
+      // Create new flow path for this group
+      const pathObjects = this.createFlowPath(offsetX, offsetY, groupKey);
       
-      // Store the path objects for this reconcileId
-      this.pipelineObjects.set(reconcileId, pathObjects);
+      // Store the path objects for this group
+      this.pipelineObjects.set(groupKey, pathObjects);
       
       // Also ensure the curve is stored in the curves collection
-      this.curves.set(reconcileId, pathObjects.curve);
-      this.pipelines.set(reconcileId, pathObjects.curve);
+      this.curves.set(groupKey, pathObjects.curve);
+      this.pipelines.set(groupKey, pathObjects.curve);
       
       // Offset for next pipeline
       offsetY -= 5;
@@ -647,16 +759,13 @@ class ReconcileFlow {
       }
       
       // Create markers for each step in this pipeline
-      this.createStepMarkers(stepsForId, reconcileId, pathObjects.curve);
+      this.createStepMarkers(stepsForGroup, groupKey, pathObjects.curve);
     }
     
-    // Update steps by reconcileId map
-    this.stepsByReconcileId = stepsByReconcileId;
-    
     // If there's no active pipeline yet but we have pipelines, select the first one
-    if (!this.activePipelineId && stepsByReconcileId.size > 0) {
-      const firstPipelineId = Array.from(stepsByReconcileId.keys())[0];
-      console.log(`No active pipeline, selecting first one: ${firstPipelineId.substring(0, 8)}...`);
+    if (!this.activePipelineId && groupedSteps.size > 0) {
+      const firstPipelineId = Array.from(groupedSteps.keys())[0];
+      console.log(`No active pipeline, selecting first one: ${firstPipelineId.substring(0, 20)}...`);
       this.setActivePipeline(firstPipelineId);
     }
     
@@ -922,71 +1031,66 @@ class ReconcileFlow {
     }
   }
   
-  // Get the current step being visualized
+  // Get the current step (for UI components)
   getCurrentStep() {
     // If we're in manual control, use the indices from manualControl
-    if (this.manualControl) {
-      // Get all steps by reconcileId
-      const stepsMap = this.getStepsByReconcileId();
+    if (this.manualControl && this.activePipelineId) {
+      // Get steps for the active pipeline based on grouping mode
+      const stepsMap = this.getGroupedSteps();
       
-      // Use the active pipeline if one is set
-      if (this.activePipelineId && stepsMap.has(this.activePipelineId) && 
-          this.currentStepIndices.has(this.activePipelineId)) {
+      if (stepsMap.has(this.activePipelineId)) {
         const steps = stepsMap.get(this.activePipelineId);
-        const index = this.currentStepIndices.get(this.activePipelineId);
+        const currentIndex = this.currentStepIndices.get(this.activePipelineId) || 0;
         
-        if (steps[index]) {
-          const step = steps[index];
-          return this.enrichStepWithMetadata(step, index, steps.length);
+        if (steps && steps.length > currentIndex) {
+          const step = steps[currentIndex];
+          return this.enrichStepWithMetadata(step, currentIndex, steps.length);
+        } else {
+          console.warn(`Invalid step index ${currentIndex} for pipeline ${this.activePipelineId}`);
         }
+      } else {
+        console.warn(`No steps found for active pipeline ${this.activePipelineId}`);
       }
+    }
+    
+    // For auto mode, find the current step based on ball positions
+    if (this.ballPositions && this.ballPositions.size > 0) {
+      // Get steps based on current grouping mode
+      const stepsMap = this.getGroupedSteps();
       
-      // If no active pipeline or it doesn't have valid steps, fall back to first pipeline with steps
-      for (const [reconcileId, steps] of stepsMap.entries()) {
-        if (this.currentStepIndices.has(reconcileId)) {
-          const index = this.currentStepIndices.get(reconcileId);
+      // If we have an active pipeline with steps, use that
+      if (this.activePipelineId && stepsMap.has(this.activePipelineId)) {
+        const steps = stepsMap.get(this.activePipelineId);
+        
+        // If we have a position for this pipeline, find the closest step
+        if (this.ballPositions.has(this.activePipelineId)) {
+          const currentPos = this.ballPositions.get(this.activePipelineId);
           
-          if (steps[index]) {
-            const step = steps[index];
-            return this.enrichStepWithMetadata(step, index, steps.length);
+          // Find the closest step to the current position
+          const stepCount = steps.length;
+          let closestIndex = 0;
+          let closestDistance = 1;
+          
+          for (let i = 0; i < stepCount; i++) {
+            const stepPosition = i / Math.max(stepCount - 1, 1);
+            const distance = Math.abs(currentPos - stepPosition);
+            if (distance < closestDistance) {
+              closestDistance = distance;
+              closestIndex = i;
+            }
           }
-        }
-      }
-    } else {
-      // In auto mode, find the step based on ball positions
-      // Get all steps by reconcileId
-      const stepsMap = this.getStepsByReconcileId();
-      
-      // Use the active pipeline if one is set
-      if (this.activePipelineId && stepsMap.has(this.activePipelineId) && 
-          this.ballPositions.has(this.activePipelineId)) {
-        const steps = stepsMap.get(this.activePipelineId);
-        const currentPos = this.ballPositions.get(this.activePipelineId);
-        
-        // Find the closest step to the current position
-        const stepCount = steps.length;
-        let closestIndex = 0;
-        let closestDistance = 1;
-        
-        for (let i = 0; i < stepCount; i++) {
-          const stepPosition = i / Math.max(stepCount - 1, 1);
-          const distance = Math.abs(currentPos - stepPosition);
-          if (distance < closestDistance) {
-            closestDistance = distance;
-            closestIndex = i;
+          
+          if (steps[closestIndex]) {
+            const step = steps[closestIndex];
+            return this.enrichStepWithMetadata(step, closestIndex, steps.length);
           }
-        }
-        
-        if (steps[closestIndex]) {
-          const step = steps[closestIndex];
-          return this.enrichStepWithMetadata(step, closestIndex, steps.length);
         }
       }
       
       // If no active pipeline or it doesn't have valid steps, fall back to first pipeline with steps
-      for (const [reconcileId, currentPos] of this.ballPositions.entries()) {
-        if (stepsMap.has(reconcileId)) {
-          const steps = stepsMap.get(reconcileId);
+      for (const [pipelineId, currentPos] of this.ballPositions.entries()) {
+        if (stepsMap.has(pipelineId)) {
+          const steps = stepsMap.get(pipelineId);
           
           // Find the closest step to the current position
           const stepCount = steps.length;
@@ -1053,83 +1157,78 @@ class ReconcileFlow {
   }
 
   // Set the active pipeline and highlight it
-  setActivePipeline(reconcileId) {
+  setActivePipeline(pipelineId) {
     console.log("\n--- setActivePipeline called ---");
     
-    if (!reconcileId) {
-      console.error("No reconcileId provided to setActivePipeline");
-      return false;
-    }
-    
-    // Check all collections to see if the pipeline exists
-    const pipelineExists = 
-      (this.pipelineObjects && this.pipelineObjects.has(reconcileId)) ||
-      (this.tubes && this.tubes.has(reconcileId)) ||
-      (this.curves && this.curves.has(reconcileId)) ||
-      (this.pipelines && this.pipelines.has(reconcileId));
-      
-    if (!pipelineExists) {
-      console.error(`Pipeline with reconcileId ${reconcileId} not found in any collection`);
-      console.log(`Available pipelines: ${this.getPipelineIds().join(", ") || "none"}`);
-      return false;
-    }
-    
     // Skip if already active
-    if (this.activePipelineId === reconcileId) {
-      console.log(`Pipeline ${reconcileId} is already active`);
+    if (this.activePipelineId === pipelineId) {
+      console.log(`Pipeline ${pipelineId} is already active`);
       return true;
     }
     
-    // Reset previous active pipeline appearance
-    if (this.activePipelineId && this.tubes && this.tubes.has(this.activePipelineId)) {
+    // Check if the pipeline exists in any collection
+    const pipelineExists = 
+      (this.pipelineObjects && this.pipelineObjects.has(pipelineId)) ||
+      (this.tubes && this.tubes.has(pipelineId)) ||
+      (this.curves && this.curves.has(pipelineId)) ||
+      (this.pipelines && this.pipelines.has(pipelineId));
+      
+    if (!pipelineExists) {
+      console.error(`Pipeline ${pipelineId} not found in any collection`);
+      
+      // Log available pipelines
+      console.log("Available pipelines:");
+      if (this.pipelineObjects) console.log(`Pipeline objects: ${Array.from(this.pipelineObjects.keys()).join(', ') || "none"}`);
+      if (this.tubes) console.log(`Tubes: ${Array.from(this.tubes.keys()).join(', ') || "none"}`);
+      if (this.curves) console.log(`Curves: ${Array.from(this.curves.keys()).join(', ') || "none"}`);
+      if (this.pipelines) console.log(`Pipelines: ${Array.from(this.pipelines.keys()).join(', ') || "none"}`);
+      
+      return false;
+    }
+    
+    // Reset previous active pipeline
+    if (this.activePipelineId && this.tubes.has(this.activePipelineId)) {
       const prevTube = this.tubes.get(this.activePipelineId);
-      if (prevTube) {
-        console.log(`Resetting appearance of previous active pipeline: ${this.activePipelineId}`);
+      if (prevTube && prevTube.material) {
+        console.log(`Resetting previous active pipeline: ${this.activePipelineId.substring(0, 20)}...`);
         prevTube.material.color.setHex(this.defaultPipelineColor);
-        prevTube.material.opacity = 0.6;
+        prevTube.material.emissive.setHex(this.defaultPipelineColor);
         prevTube.material.emissiveIntensity = 0.3;
       }
     }
     
-    // Store the new active pipeline
-    const prevPipelineId = this.activePipelineId;
-    this.activePipelineId = reconcileId;
+    // Set new active pipeline
+    this.activePipelineId = pipelineId;
+    console.log(`Set active pipeline to: ${pipelineId.substring(0, 20)}...`);
     
-    console.log(`Active pipeline changed from ${prevPipelineId || "none"} to ${reconcileId}`);
-    
-    // Make active pipeline clearly visible
-    if (this.tubes && this.tubes.has(reconcileId)) {
-      const tube = this.tubes.get(reconcileId);
-      if (tube) {
-        console.log(`Highlighting active pipeline: ${reconcileId}`);
-        tube.material.color.setHex(0x00ffff); // Bright cyan
-        tube.material.opacity = 0.9;
-        tube.material.emissiveIntensity = 0.8;
+    // Highlight new active pipeline
+    if (this.tubes.has(pipelineId)) {
+      const tube = this.tubes.get(pipelineId);
+      if (tube && tube.material) {
+        console.log("Highlighting active pipeline");
+        tube.material.color.setHex(this.activePipelineColor);
+        tube.material.emissive.setHex(this.activePipelineColor);
+        tube.material.emissiveIntensity = 0.6;
       }
-    } else {
-      console.warn(`Tube for active pipeline ${reconcileId} not found, cannot highlight`);
     }
     
-    // Highlight ball to give visual feedback
-    this.flashBall(reconcileId);
-    
-    // Update current step information if in manual mode
+    // If we're in manual mode, update current step
     if (this.manualControl) {
-      console.log("In manual mode - updating current step");
+      console.log("Updating current step for manual mode");
       
-      // Get steps for this pipeline
-      const stepsMap = this.getStepsByReconcileId();
+      // Get steps for the active pipeline based on grouping mode
+      const stepsMap = this.getGroupedSteps();
       
-      if (stepsMap.has(reconcileId)) {
-        const steps = stepsMap.get(reconcileId);
+      if (stepsMap.has(pipelineId)) {
+        const steps = stepsMap.get(pipelineId);
         
         if (steps && steps.length > 0) {
           // Get current step index or default to first step
-          let currentIndex = this.currentStepIndices.get(reconcileId);
+          let currentIndex = this.currentStepIndices.get(pipelineId);
           if (currentIndex === undefined) {
             currentIndex = 0;
-            this.currentStepIndices.set(reconcileId, currentIndex);
-            console.log(`Initializing step index for pipeline ${reconcileId} to 0`);
+            this.currentStepIndices.set(pipelineId, currentIndex);
+            console.log(`Initializing step index for pipeline ${pipelineId} to 0`);
           }
           
           // Update current step data for external components
@@ -1144,16 +1243,16 @@ class ReconcileFlow {
             
             // Make ball move to the current step position
             const targetPosition = currentIndex / Math.max(1, steps.length - 1);
-            this.targetPositions.set(reconcileId, targetPosition);
+            this.targetPositions.set(pipelineId, targetPosition);
             
             // Activate animation to move ball
             this.animating = true;
           }
         } else {
-          console.log(`No steps available for pipeline ${reconcileId}`);
+          console.log(`No steps available for pipeline ${pipelineId}`);
         }
       } else {
-        console.log(`No step data found for pipeline ${reconcileId}`);
+        console.log(`No step data found for pipeline ${pipelineId}`);
         console.log(`Step data available for: ${Array.from(stepsMap.keys()).join(', ') || "none"}`);
       }
     }

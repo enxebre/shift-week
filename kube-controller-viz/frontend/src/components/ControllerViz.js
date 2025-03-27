@@ -23,6 +23,7 @@ const ControllerViz = ({ controllerState, isPlaying, speed }) => {
   const panelRef = useRef(null);
   const prevStepRef = useRef(null);
   const [activePipelineId, setActivePipelineId] = useState(null);
+  const [groupingMode, setGroupingMode] = useState('reconcileId');
 
   // Handle mouse movements for tooltips, dragging and resizing
   const handleMouseMove = (event) => {
@@ -257,6 +258,27 @@ const ControllerViz = ({ controllerState, isPlaying, speed }) => {
         setPanelSize(prev => ({ ...prev }));
         break;
         
+      case 'KeyG':
+        console.log("G pressed - toggling grouping mode");
+        // Toggle between reconcileId and resource grouping modes
+        const newGroupingMode = groupingMode === 'reconcileId' ? 'resource' : 'reconcileId';
+        console.log(`Changing grouping mode from ${groupingMode} to ${newGroupingMode}`);
+        setGroupingMode(newGroupingMode);
+        
+        // Update reconcileFlow grouping mode
+        if (reconcileFlowRef.current) {
+          reconcileFlowRef.current.setGroupingMode(newGroupingMode);
+          
+          // Update active pipeline ID in state if it changed
+          if (reconcileFlowRef.current.activePipelineId !== activePipelineId) {
+            setActivePipelineId(reconcileFlowRef.current.activePipelineId);
+          }
+          
+          // Force re-render
+          setPanelSize(prev => ({ ...prev }));
+        }
+        break;
+        
       case 'ArrowRight':
         console.log(`ArrowRight pressed - navigationMode: ${navigationMode}`);
         if (navigationMode === 'manual') {
@@ -424,7 +446,7 @@ const ControllerViz = ({ controllerState, isPlaying, speed }) => {
     if (!activePipelineId && reconcileFlowRef.current.activePipelineId) {
       setActivePipelineId(reconcileFlowRef.current.activePipelineId);
     }
-  }, [controllerState]);
+  }, [controllerState, activePipelineId]);
   
   // Optimize step details refresh
   useEffect(() => {
@@ -447,6 +469,12 @@ const ControllerViz = ({ controllerState, isPlaying, speed }) => {
     const interval = setInterval(checkForStepChanges, 100);
     return () => clearInterval(interval);
   }, [activePipelineId]);
+
+  // Update grouping mode when it changes
+  useEffect(() => {
+    if (!reconcileFlowRef.current) return;
+    reconcileFlowRef.current.setGroupingMode(groupingMode);
+  }, [groupingMode]);
 
   // Create tooltip content
   const createTooltipContent = (obj) => {
@@ -597,10 +625,20 @@ const ControllerViz = ({ controllerState, isPlaying, speed }) => {
             {navigationMode === 'auto' ? 'Auto' : 'Manual'}
           </div>
         </div>
+        <div className="mode-indicator">
+          <span>Grouping:</span>
+          <div className={`mode ${groupingMode === 'reconcileId' ? 'auto' : 'manual'}`}>
+            {groupingMode === 'reconcileId' ? 'ReconcileID' : 'Resource'}
+          </div>
+        </div>
         <ul className="controls-list">
           <li className="control-item">
             <kbd>Space</kbd>
             <span>Toggle Manual/Auto</span>
+          </li>
+          <li className="control-item">
+            <kbd>G</kbd>
+            <span>Toggle Grouping Mode</span>
           </li>
           <li className={`control-item ${navigationMode === 'manual' ? 'active' : 'disabled'}`}>
             <kbd>←</kbd>
@@ -619,31 +657,40 @@ const ControllerViz = ({ controllerState, isPlaying, speed }) => {
         {activePipelineId && (
           <div className="active-pipeline">
             <span className="active-pipeline-label">Active Pipeline:</span>
-            <span className="active-pipeline-id">{activePipelineId.substring(0, 8)}...</span>
+            <span className="active-pipeline-id">
+              {activePipelineId.length > 20 
+                ? `${activePipelineId.substring(0, 20)}...`
+                : activePipelineId}
+            </span>
           </div>
         )}
       </div>
 
       {reconcileFlowRef.current && reconcileFlowRef.current.getCurrentStep() && (
-        <div 
+        <div
           ref={panelRef}
           className={`step-details-panel ${isDragging ? 'dragging' : ''}`}
           style={{
-            position: 'absolute',
-            left: panelPosition.left,
-            bottom: panelPosition.bottom,
+            ...panelPosition,
             width: `${panelSize.width}px`,
-            height: panelSize.height === 'auto' ? 'auto' : `${panelSize.height}px`,
-            cursor: isDragging ? 'grabbing' : 'default'
+            height: panelSize.height
           }}
           onMouseDown={handlePanelMouseDown}
         >
           <div className="step-details-header">
-            <h3>Step Details</h3>
+            <div className="drag-handle">
+              <div></div>
+              <div></div>
+              <div></div>
+            </div>
+            <h3>
+              Step Details 
+              <span className="grouping-mode">
+                {groupingMode === 'reconcileId' ? 'Grouping by ReconcileID' : 'Grouping by Resource'}
+              </span>
+            </h3>
             <div className="panel-controls">
-              <div className="drag-handle" title="Drag to move">
-                <span>☰</span>
-              </div>
+              <div className="resize-handle" onMouseDown={handleResizeMouseDown}></div>
             </div>
           </div>
           <div className="step-details-content">
